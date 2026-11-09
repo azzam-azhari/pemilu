@@ -1,0 +1,53 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-background: #fdf8f8;
+  --color-foreground: #1c1b1b;
+  --color-muted-foreground: #444748;
+  --color-primary: #000000;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #5e5e5e;
+  --color-secondary-container: #e1dfdf;
+  --color-outline: #747878;
+  --color-outline-variant: #c4c7c7;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-panel: #f3f2ef;
+  --color-border-soft: #e7e7e4;
+  --radius-input: 0.5rem;
+  --radius-card: 1.5rem;
+  --radius-pill: 9999px;
+  --shadow-float: 0 0 40px rgba(0, 0, 0, 0.02);
+  --spacing-header: 72px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-background: #1c1b1b;
+  --color-foreground: #f4f0ef;
+  --color-muted-foreground: #c9c4c3;
+  --color-panel: #313030;
+  --color-border-soft: #4c4949;
+  --color-secondary-container: #4a4747;
+  --color-outline-variant: #696565;
+}
+
+* {
+  border-color: var(--color-border-soft);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
