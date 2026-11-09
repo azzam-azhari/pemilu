@@ -1,8 +1,8 @@
--- Development-only seed. It intentionally does not create an auth user/admin.
--- Create that user in Supabase Auth, then insert the matching UUID into public.admins.
+-- Development-only seed. Create an email user in Supabase Authentication → Users;
+-- the sync_admin_from_auth_user trigger will add it to public.admins automatically.
 with election as (
   insert into public.elections (nama, periode_mulai, periode_selesai, status)
-  values ('Pemilihan Ketua Organisasi 2026', now(), now() + interval '1 day', 'draft')
+  values ('Pemilihan Ketua Umum', now(), now() + interval '1 day', 'draft')
   returning id
 ), positions as (
   insert into public.positions (election_id, nama_jabatan, urutan)

@@ -18,6 +18,11 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
-  return response;
+  const { data: { user } } = await supabase.auth.getUser();
+  let isAdmin = false;
+  if (user) {
+    const { data } = await supabase.from("admins").select("id").eq("id", user.id).maybeSingle();
+    isAdmin = Boolean(data);
+  }
+  return { response, user, isAdmin };
 }

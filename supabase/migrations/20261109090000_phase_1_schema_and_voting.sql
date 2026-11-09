@@ -11,6 +11,48 @@ create table public.admins (
   created_at timestamptz not null default now()
 );
 
+-- Every Auth user is an administrator for this application. Public sign-up must
+-- remain disabled in Supabase Auth so only an operator can create admin users.
+create or replace function public.sync_admin_from_auth_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_nama text;
+begin
+  -- This application supports email/password admins only.
+  if new.email is null then
+    return new;
+  end if;
+
+  v_nama := coalesce(
+    nullif(btrim(new.raw_user_meta_data ->> 'nama'), ''),
+    nullif(btrim(new.raw_user_meta_data ->> 'full_name'), ''),
+    nullif(btrim(split_part(new.email, '@', 1)), ''),
+    'Admin'
+  );
+  v_nama := left(v_nama, 120);
+  if char_length(v_nama) < 2 then
+    v_nama := 'Admin';
+  end if;
+
+  insert into public.admins (id, nama, email, role)
+  values (new.id, v_nama, lower(new.email), 'admin')
+  on conflict (id) do update
+  set nama = excluded.nama,
+      email = excluded.email,
+      role = excluded.role;
+
+  return new;
+end;
+$$;
+
+create trigger sync_admin_from_auth_user
+after insert or update of email, raw_user_meta_data on auth.users
+for each row execute function public.sync_admin_from_auth_user();
+
 create table public.elections (
   id uuid primary key default gen_random_uuid(),
   nama text not null check (char_length(trim(nama)) between 3 and 200),
