@@ -1,5 +1,5 @@
 -- Server Actions authenticate the operator before calling this service-only RPC.
-create function public.manage_voter(p_actor uuid,p_election uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')
+create or replace function public.manage_voter(p_actor uuid,p_election uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')
 returns uuid language plpgsql security definer set search_path = '' as $$
 declare v public.voters%rowtype; state public.election_status; result_id uuid;
 begin
@@ -33,6 +33,7 @@ end $$;
 revoke all on function public.manage_voter(uuid,uuid,text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.manage_voter(uuid,uuid,text,uuid,jsonb) to service_role;
 -- Prevent browser clients from bypassing the audited management RPC.
-drop policy "admin manage voters" on public.voters;
+drop policy if exists "admin manage voters" on public.voters;
+drop policy if exists "admin read voters" on public.voters;
 create policy "admin read voters" on public.voters for select to authenticated using(public.is_admin());
 insert into public.settings(key,value) values('kode_unik','{"panjang":12,"format":"alphanumeric"}') on conflict(key) do nothing;

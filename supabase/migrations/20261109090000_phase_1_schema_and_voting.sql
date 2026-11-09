@@ -1,9 +1,16 @@
 create extension if not exists pgcrypto;
 
-create type public.election_status as enum ('draft', 'open', 'closed');
-create type public.booth_status as enum ('kosong', 'terpakai', 'nonaktif');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'election_status') then
+    create type public.election_status as enum ('draft', 'open', 'closed');
+  end if;
+  if not exists (select 1 from pg_type where typname = 'booth_status') then
+    create type public.booth_status as enum ('kosong', 'terpakai', 'nonaktif');
+  end if;
+end $$;
 
-create table public.admins (
+create table if not exists public.admins (
   id uuid primary key references auth.users(id) on delete cascade,
   nama text not null check (char_length(trim(nama)) between 2 and 120),
   email text not null unique check (email = lower(email)),
@@ -49,11 +56,12 @@ begin
 end;
 $$;
 
+drop trigger if exists sync_admin_from_auth_user on auth.users;
 create trigger sync_admin_from_auth_user
 after insert or update of email, raw_user_meta_data on auth.users
 for each row execute function public.sync_admin_from_auth_user();
 
-create table public.elections (
+create table if not exists public.elections (
   id uuid primary key default gen_random_uuid(),
   nama text not null check (char_length(trim(nama)) between 3 and 200),
   periode_mulai timestamptz,
@@ -64,7 +72,7 @@ create table public.elections (
   check (periode_selesai is null or periode_mulai is null or periode_selesai > periode_mulai)
 );
 
-create table public.positions (
+create table if not exists public.positions (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete cascade,
   nama_jabatan text not null check (char_length(trim(nama_jabatan)) between 2 and 160),
@@ -74,7 +82,7 @@ create table public.positions (
   unique (id, election_id)
 );
 
-create table public.candidates (
+create table if not exists public.candidates (
   id uuid primary key default gen_random_uuid(),
   position_id uuid not null references public.positions(id) on delete cascade,
   no_urut integer not null check (no_urut > 0),
@@ -86,7 +94,7 @@ create table public.candidates (
   unique (position_id, no_urut)
 );
 
-create table public.voters (
+create table if not exists public.voters (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete cascade,
   kode_unik text not null unique check (char_length(kode_unik) between 6 and 64),
@@ -99,7 +107,7 @@ create table public.voters (
 );
 
 -- Deliberately anonymous: there is no voter_id, kode_unik, or other voter identity here.
-create table public.votes (
+create table if not exists public.votes (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete restrict,
   position_id uuid not null references public.positions(id) on delete restrict,
@@ -107,7 +115,7 @@ create table public.votes (
   created_at timestamptz not null default now()
 );
 
-create table public.booths (
+create table if not exists public.booths (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete cascade,
   nama text not null check (char_length(trim(nama)) between 2 and 120),
@@ -116,14 +124,14 @@ create table public.booths (
   unique (election_id, nama)
 );
 
-create table public.staff (
+create table if not exists public.staff (
   id uuid primary key default gen_random_uuid(),
   nama text not null check (char_length(trim(nama)) between 2 and 160),
   booth_id uuid references public.booths(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
-create table public.audit_logs (
+create table if not exists public.audit_logs (
   id bigint generated always as identity primary key,
   aksi text not null check (char_length(trim(aksi)) between 3 and 100),
   aktor text not null default 'sistem',
@@ -132,18 +140,18 @@ create table public.audit_logs (
   created_at timestamptz not null default now()
 );
 
-create table public.settings (
+create table if not exists public.settings (
   key text primary key check (char_length(trim(key)) between 2 and 100),
   value jsonb not null,
   updated_at timestamptz not null default now()
 );
 
-create index voters_election_has_voted_idx on public.voters (election_id, has_voted);
-create index positions_election_urutan_idx on public.positions (election_id, urutan);
-create index candidates_position_no_urut_idx on public.candidates (position_id, no_urut);
-create index votes_election_position_idx on public.votes (election_id, position_id);
-create index votes_candidate_idx on public.votes (candidate_id);
-create index audit_logs_created_at_idx on public.audit_logs (created_at desc);
+create index if not exists voters_election_has_voted_idx on public.voters (election_id, has_voted);
+create index if not exists positions_election_urutan_idx on public.positions (election_id, urutan);
+create index if not exists candidates_position_no_urut_idx on public.candidates (position_id, no_urut);
+create index if not exists votes_election_position_idx on public.votes (election_id, position_id);
+create index if not exists votes_candidate_idx on public.votes (candidate_id);
+create index if not exists audit_logs_created_at_idx on public.audit_logs (created_at desc);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -156,10 +164,12 @@ begin
 end;
 $$;
 
+drop trigger if exists elections_set_updated_at on public.elections;
 create trigger elections_set_updated_at
 before update on public.elections
 for each row execute function public.set_updated_at();
 
+drop trigger if exists settings_set_updated_at on public.settings;
 create trigger settings_set_updated_at
 before update on public.settings
 for each row execute function public.set_updated_at();
@@ -188,24 +198,45 @@ alter table public.staff enable row level security;
 alter table public.audit_logs enable row level security;
 alter table public.settings enable row level security;
 
+drop policy if exists "admin manage admins" on public.admins;
 create policy "admin manage admins" on public.admins
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+  for all to authenticated using (id = auth.uid() or public.is_admin()) with check (public.is_admin());
+
+grant select on public.admins to authenticated;
+
+drop policy if exists "admin manage elections" on public.elections;
 create policy "admin manage elections" on public.elections
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage positions" on public.positions;
 create policy "admin manage positions" on public.positions
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage candidates" on public.candidates;
 create policy "admin manage candidates" on public.candidates
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage voters" on public.voters;
 create policy "admin manage voters" on public.voters
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin read votes" on public.votes;
 create policy "admin read votes" on public.votes
   for select to authenticated using (public.is_admin());
+
+drop policy if exists "admin manage booths" on public.booths;
 create policy "admin manage booths" on public.booths
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage staff" on public.staff;
 create policy "admin manage staff" on public.staff
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin read audit logs" on public.audit_logs;
 create policy "admin read audit logs" on public.audit_logs
   for select to authenticated using (public.is_admin());
+
+drop policy if exists "admin manage settings" on public.settings;
 create policy "admin manage settings" on public.settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 

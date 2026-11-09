@@ -35,7 +35,12 @@ export async function signIn(formData: FormData) {
     redirect("/login?error=invalid");
   }
 
-  const { data: admin } = await supabase.from("admins").select("id").eq("id", data.user.id).maybeSingle();
+  const { data: admin } = await createAdminClient()
+    .from("admins")
+    .select("id, role")
+    .eq("id", data.user.id)
+    .eq("role", "admin")
+    .maybeSingle();
   if (!admin) {
     await supabase.auth.signOut();
     await logFailedLogin(credentials.email, "bukan_admin");

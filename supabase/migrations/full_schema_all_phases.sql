@@ -1,15 +1,6 @@
 -- ==============================================================================
--- SISTEM E-VOTING PEMILU: FULL DATABASE SCHEMA & MIGRATIONS (FASE 1 - 7)
+-- SISTEM E-VOTING PEMILU: FULL DATABASE SCHEMA & MIGRATIONS (FASE 1 - 8)
 -- Jalankan file ini secara menyeluruh di Supabase SQL Editor
--- 
--- CATATAN PENTING:
--- Jika Anda ingin memulai dari awal di Supabase (database baru / reset pengujian),
--- Anda dapat menjalankan 4 baris di bawah ini terlebih dahulu (uncomment jika perlu):
---
--- DROP SCHEMA public CASCADE;
--- CREATE SCHEMA public;
--- GRANT ALL ON SCHEMA public TO postgres;
--- GRANT ALL ON SCHEMA public TO public;
 -- ==============================================================================
 
 begin;
@@ -25,10 +16,17 @@ create extension if not exists "uuid-ossp";
 
 create extension if not exists pgcrypto;
 
-create type public.election_status as enum ('draft', 'open', 'closed');
-create type public.booth_status as enum ('kosong', 'terpakai', 'nonaktif');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'election_status') then
+    create type public.election_status as enum ('draft', 'open', 'closed');
+  end if;
+  if not exists (select 1 from pg_type where typname = 'booth_status') then
+    create type public.booth_status as enum ('kosong', 'terpakai', 'nonaktif');
+  end if;
+end $$;
 
-create table public.admins (
+create table if not exists public.admins (
   id uuid primary key references auth.users(id) on delete cascade,
   nama text not null check (char_length(trim(nama)) between 2 and 120),
   email text not null unique check (email = lower(email)),
@@ -74,11 +72,12 @@ begin
 end;
 $$;
 
+drop trigger if exists sync_admin_from_auth_user on auth.users;
 create trigger sync_admin_from_auth_user
 after insert or update of email, raw_user_meta_data on auth.users
 for each row execute function public.sync_admin_from_auth_user();
 
-create table public.elections (
+create table if not exists public.elections (
   id uuid primary key default gen_random_uuid(),
   nama text not null check (char_length(trim(nama)) between 3 and 200),
   periode_mulai timestamptz,
@@ -89,7 +88,7 @@ create table public.elections (
   check (periode_selesai is null or periode_mulai is null or periode_selesai > periode_mulai)
 );
 
-create table public.positions (
+create table if not exists public.positions (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete cascade,
   nama_jabatan text not null check (char_length(trim(nama_jabatan)) between 2 and 160),
@@ -99,7 +98,7 @@ create table public.positions (
   unique (id, election_id)
 );
 
-create table public.candidates (
+create table if not exists public.candidates (
   id uuid primary key default gen_random_uuid(),
   position_id uuid not null references public.positions(id) on delete cascade,
   no_urut integer not null check (no_urut > 0),
@@ -111,7 +110,7 @@ create table public.candidates (
   unique (position_id, no_urut)
 );
 
-create table public.voters (
+create table if not exists public.voters (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete cascade,
   kode_unik text not null unique check (char_length(kode_unik) between 6 and 64),
@@ -124,7 +123,7 @@ create table public.voters (
 );
 
 -- Deliberately anonymous: there is no voter_id, kode_unik, or other voter identity here.
-create table public.votes (
+create table if not exists public.votes (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete restrict,
   position_id uuid not null references public.positions(id) on delete restrict,
@@ -132,7 +131,7 @@ create table public.votes (
   created_at timestamptz not null default now()
 );
 
-create table public.booths (
+create table if not exists public.booths (
   id uuid primary key default gen_random_uuid(),
   election_id uuid not null references public.elections(id) on delete cascade,
   nama text not null check (char_length(trim(nama)) between 2 and 120),
@@ -141,14 +140,14 @@ create table public.booths (
   unique (election_id, nama)
 );
 
-create table public.staff (
+create table if not exists public.staff (
   id uuid primary key default gen_random_uuid(),
   nama text not null check (char_length(trim(nama)) between 2 and 160),
   booth_id uuid references public.booths(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
-create table public.audit_logs (
+create table if not exists public.audit_logs (
   id bigint generated always as identity primary key,
   aksi text not null check (char_length(trim(aksi)) between 3 and 100),
   aktor text not null default 'sistem',
@@ -157,18 +156,18 @@ create table public.audit_logs (
   created_at timestamptz not null default now()
 );
 
-create table public.settings (
+create table if not exists public.settings (
   key text primary key check (char_length(trim(key)) between 2 and 100),
   value jsonb not null,
   updated_at timestamptz not null default now()
 );
 
-create index voters_election_has_voted_idx on public.voters (election_id, has_voted);
-create index positions_election_urutan_idx on public.positions (election_id, urutan);
-create index candidates_position_no_urut_idx on public.candidates (position_id, no_urut);
-create index votes_election_position_idx on public.votes (election_id, position_id);
-create index votes_candidate_idx on public.votes (candidate_id);
-create index audit_logs_created_at_idx on public.audit_logs (created_at desc);
+create index if not exists voters_election_has_voted_idx on public.voters (election_id, has_voted);
+create index if not exists positions_election_urutan_idx on public.positions (election_id, urutan);
+create index if not exists candidates_position_no_urut_idx on public.candidates (position_id, no_urut);
+create index if not exists votes_election_position_idx on public.votes (election_id, position_id);
+create index if not exists votes_candidate_idx on public.votes (candidate_id);
+create index if not exists audit_logs_created_at_idx on public.audit_logs (created_at desc);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -181,10 +180,12 @@ begin
 end;
 $$;
 
+drop trigger if exists elections_set_updated_at on public.elections;
 create trigger elections_set_updated_at
 before update on public.elections
 for each row execute function public.set_updated_at();
 
+drop trigger if exists settings_set_updated_at on public.settings;
 create trigger settings_set_updated_at
 before update on public.settings
 for each row execute function public.set_updated_at();
@@ -213,24 +214,45 @@ alter table public.staff enable row level security;
 alter table public.audit_logs enable row level security;
 alter table public.settings enable row level security;
 
+drop policy if exists "admin manage admins" on public.admins;
 create policy "admin manage admins" on public.admins
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+  for all to authenticated using (id = auth.uid() or public.is_admin()) with check (public.is_admin());
+
+grant select on public.admins to authenticated;
+
+drop policy if exists "admin manage elections" on public.elections;
 create policy "admin manage elections" on public.elections
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage positions" on public.positions;
 create policy "admin manage positions" on public.positions
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage candidates" on public.candidates;
 create policy "admin manage candidates" on public.candidates
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage voters" on public.voters;
 create policy "admin manage voters" on public.voters
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin read votes" on public.votes;
 create policy "admin read votes" on public.votes
   for select to authenticated using (public.is_admin());
+
+drop policy if exists "admin manage booths" on public.booths;
 create policy "admin manage booths" on public.booths
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin manage staff" on public.staff;
 create policy "admin manage staff" on public.staff
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "admin read audit logs" on public.audit_logs;
 create policy "admin read audit logs" on public.audit_logs
   for select to authenticated using (public.is_admin());
+
+drop policy if exists "admin manage settings" on public.settings;
 create policy "admin manage settings" on public.settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
@@ -369,9 +391,9 @@ grant execute on function public.cast_vote(text, jsonb) to anon, authenticated;
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 -- Apply after phase 1. All management writes are audited in the same transaction.
-alter table public.positions drop constraint positions_election_id_urutan_key;
+alter table public.positions drop constraint if exists positions_election_id_urutan_key;
 alter table public.positions add constraint positions_election_id_urutan_key unique(election_id,urutan) deferrable initially deferred;
-create function public.guard_election_content() returns trigger language plpgsql set search_path = '' as $$
+create or replace function public.guard_election_content() returns trigger language plpgsql set search_path = '' as $$
 declare eid uuid; state public.election_status;
 begin
   if tg_table_name = 'positions' then
@@ -386,9 +408,11 @@ begin
   if tg_op='DELETE' then return old; end if;
   return new;
 end $$;
+drop trigger if exists guard_positions on public.positions;
 create trigger guard_positions before insert or update or delete on public.positions for each row execute function public.guard_election_content();
+drop trigger if exists guard_candidates on public.candidates;
 create trigger guard_candidates before insert or update or delete on public.candidates for each row execute function public.guard_election_content();
-create function public.guard_election_status() returns trigger language plpgsql set search_path = '' as $$
+create or replace function public.guard_election_status() returns trigger language plpgsql set search_path = '' as $$
 begin
   if tg_op='DELETE' then
     if old.status<>'draft' then raise exception 'Hanya Draft dapat dihapus'; end if;
@@ -400,16 +424,20 @@ begin
   end if;
   return new;
 end $$;
+drop trigger if exists guard_elections on public.elections;
 create trigger guard_elections before update or delete on public.elections for each row execute function public.guard_election_status();
-create function public.audit_management() returns trigger language plpgsql security definer set search_path = '' as $$
+create or replace function public.audit_management() returns trigger language plpgsql security definer set search_path = '' as $$
 begin
   insert into public.audit_logs(aksi,aktor,detail) values(lower(tg_table_name||'_'||tg_op),coalesce(auth.uid()::text,'sistem'),jsonb_build_object('id',case when tg_op='DELETE' then old.id else new.id end));
   return null;
 end $$;
+drop trigger if exists audit_elections on public.elections;
 create trigger audit_elections after insert or update or delete on public.elections for each row execute function public.audit_management();
+drop trigger if exists audit_positions on public.positions;
 create trigger audit_positions after insert or update or delete on public.positions for each row execute function public.audit_management();
+drop trigger if exists audit_candidates on public.candidates;
 create trigger audit_candidates after insert or update or delete on public.candidates for each row execute function public.audit_management();
-create function public.reorder_positions(p_election uuid,p_ids uuid[]) returns void language plpgsql security invoker set search_path = '' as $$
+create or replace function public.reorder_positions(p_election uuid,p_ids uuid[]) returns void language plpgsql security invoker set search_path = '' as $$
 begin
   if not public.is_admin() then raise exception 'Akses ditolak'; end if;
   perform 1 from public.elections where id=p_election for update;
@@ -431,7 +459,7 @@ end $$;
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 -- Server Actions authenticate the operator before calling this service-only RPC.
-create function public.manage_voter(p_actor uuid,p_election uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')
+create or replace function public.manage_voter(p_actor uuid,p_election uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')
 returns uuid language plpgsql security definer set search_path = '' as $$
 declare v public.voters%rowtype; state public.election_status; result_id uuid;
 begin
@@ -465,7 +493,8 @@ end $$;
 revoke all on function public.manage_voter(uuid,uuid,text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.manage_voter(uuid,uuid,text,uuid,jsonb) to service_role;
 -- Prevent browser clients from bypassing the audited management RPC.
-drop policy "admin manage voters" on public.voters;
+drop policy if exists "admin manage voters" on public.voters;
+drop policy if exists "admin read voters" on public.voters;
 create policy "admin read voters" on public.voters for select to authenticated using(public.is_admin());
 insert into public.settings(key,value) values('kode_unik','{"panjang":12,"format":"alphanumeric"}') on conflict(key) do nothing;
 
@@ -474,7 +503,7 @@ insert into public.settings(key,value) values('kode_unik','{"panjang":12,"format
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 -- (nested begin omitted)
-create table public.voting_sessions (
+create table if not exists public.voting_sessions (
   token_hash text primary key check (token_hash ~ '^[a-f0-9]{64}$'),
   voter_id uuid not null references public.voters(id) on delete cascade,
   election_id uuid not null references public.elections(id) on delete cascade,
@@ -485,19 +514,19 @@ create table public.voting_sessions (
   expires_at timestamptz not null default (clock_timestamp()+interval '10 minutes'),
   state text not null default 'active' check(state in ('active','submitted','revoked'))
 );
-create index voting_sessions_expiry on public.voting_sessions(expires_at);
+create index if not exists voting_sessions_expiry on public.voting_sessions(expires_at);
 alter table public.voting_sessions enable row level security;
 revoke all on public.voting_sessions from anon,authenticated;
-create table public.booth_rate_limits (
+create table if not exists public.booth_rate_limits (
   key text primary key,
   starts_at timestamptz not null,
   attempts integer not null
 );
 alter table public.booth_rate_limits enable row level security;
 revoke all on public.booth_rate_limits from anon,authenticated;
-create index booth_rate_expiry on public.booth_rate_limits(starts_at);
+create index if not exists booth_rate_expiry on public.booth_rate_limits(starts_at);
 
-create function public.booth_attempt(p_device text,p_ip text) returns integer
+create or replace function public.booth_attempt(p_device text,p_ip text) returns integer
 language plpgsql security definer set search_path='' as $$
 declare k text; n integer; started timestamptz; wait_seconds integer:=0; cap integer;
 begin
@@ -552,7 +581,7 @@ begin
   return '{"ok":true}';
 end $$;
 
-create function public.start_voting_session(p_hash text,p_code text,p_booth uuid default null)
+create or replace function public.start_voting_session(p_hash text,p_code text,p_booth uuid default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare v public.voters%rowtype; b public.booths%rowtype; verified jsonb;
 begin
@@ -572,7 +601,7 @@ begin
   return '{"ok":true}';
 end $$;
 
-create function public.use_voting_session(p_hash text,p_action text,p_choices jsonb default null)
+create or replace function public.use_voting_session(p_hash text,p_action text,p_choices jsonb default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare s public.voting_sessions%rowtype; v public.voters%rowtype; e public.elections%rowtype; result jsonb; ballot jsonb; b public.booths%rowtype;
 begin
@@ -1054,6 +1083,55 @@ begin
     end if;
   end if;
 end $$;
+-- (nested commit omitted)
+
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- MIGRATION: 20261109100000_phase_8_hardening.sql
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+-- ==============================================================================
+-- FASE 8: QA & HARDENING (SECURITY, RLS POLICIES & CONCURRENCY INTEGRITY)
+-- ==============================================================================
+-- (nested begin omitted)
+-- 1. Izinkan role anon dan authenticated untuk membaca metadata pemilu (read-only).
+-- Metadata pemilu (id, nama, status, periode) bersifat non-sensitif dan wajib dapat dibaca
+-- oleh pengunjung halaman /live (proyektor publik) dan pemilih pada bilik suara.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies 
+    where schemaname = 'public' and tablename = 'elections' and policyname = 'public read elections'
+  ) then
+    create policy "public read elections" on public.elections
+      for select to public
+      using (true);
+  end if;
+end $$;
+
+grant select on public.elections to anon, authenticated;
+
+-- 2. Pastikan tabel votes dan voters benar-benar tertutup dari pembacaan langsung publik / anon.
+-- Seluruh penulisan suara wajib melewati cast_vote / use_voting_session (service_role).
+-- Seluruh perolehan hasil suara publik wajib melewati get_election_results() RPC.
+revoke all on public.votes from anon, authenticated;
+grant select on public.votes to authenticated; -- Hanya diproteksi RLS public.is_admin()
+
+revoke all on public.voters from anon;
+grant select on public.voters to authenticated; -- Hanya diproteksi RLS public.is_admin()
+
+-- 3. Pastikan tabel audit_logs hanya dapat dibaca oleh admin yang terautentikasi
+revoke all on public.audit_logs from anon;
+grant select on public.audit_logs to authenticated;
+
+-- 4. Pastikan tabel sesi voting dan rate limiter tertutup total dari akses client
+revoke all on public.voting_sessions from anon, authenticated;
+revoke all on public.booth_rate_limits from anon, authenticated;
+
+-- 5. Pastikan RPC hasil pemilu get_election_results dapat diakses oleh anon, authenticated, dan service_role
+grant execute on function public.get_election_results(uuid) to anon, authenticated, service_role;
+
+-- 6. Pastikan RPC pengaturan web get_web_settings dapat diakses oleh anon, authenticated, dan service_role
+grant execute on function public.get_web_settings() to anon, authenticated, service_role;
 -- (nested commit omitted)
 
 -- ==============================================================================

@@ -1,5 +1,5 @@
 begin;
-create table public.voting_sessions (
+create table if not exists public.voting_sessions (
   token_hash text primary key check (token_hash ~ '^[a-f0-9]{64}$'),
   voter_id uuid not null references public.voters(id) on delete cascade,
   election_id uuid not null references public.elections(id) on delete cascade,
@@ -10,19 +10,19 @@ create table public.voting_sessions (
   expires_at timestamptz not null default (clock_timestamp()+interval '10 minutes'),
   state text not null default 'active' check(state in ('active','submitted','revoked'))
 );
-create index voting_sessions_expiry on public.voting_sessions(expires_at);
+create index if not exists voting_sessions_expiry on public.voting_sessions(expires_at);
 alter table public.voting_sessions enable row level security;
 revoke all on public.voting_sessions from anon,authenticated;
-create table public.booth_rate_limits (
+create table if not exists public.booth_rate_limits (
   key text primary key,
   starts_at timestamptz not null,
   attempts integer not null
 );
 alter table public.booth_rate_limits enable row level security;
 revoke all on public.booth_rate_limits from anon,authenticated;
-create index booth_rate_expiry on public.booth_rate_limits(starts_at);
+create index if not exists booth_rate_expiry on public.booth_rate_limits(starts_at);
 
-create function public.booth_attempt(p_device text,p_ip text) returns integer
+create or replace function public.booth_attempt(p_device text,p_ip text) returns integer
 language plpgsql security definer set search_path='' as $$
 declare k text; n integer; started timestamptz; wait_seconds integer:=0; cap integer;
 begin
@@ -77,7 +77,7 @@ begin
   return '{"ok":true}';
 end $$;
 
-create function public.start_voting_session(p_hash text,p_code text,p_booth uuid default null)
+create or replace function public.start_voting_session(p_hash text,p_code text,p_booth uuid default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare v public.voters%rowtype; b public.booths%rowtype; verified jsonb;
 begin
@@ -97,7 +97,7 @@ begin
   return '{"ok":true}';
 end $$;
 
-create function public.use_voting_session(p_hash text,p_action text,p_choices jsonb default null)
+create or replace function public.use_voting_session(p_hash text,p_action text,p_choices jsonb default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare s public.voting_sessions%rowtype; v public.voters%rowtype; e public.elections%rowtype; result jsonb; ballot jsonb; b public.booths%rowtype;
 begin

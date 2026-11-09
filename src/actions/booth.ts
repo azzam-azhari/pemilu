@@ -26,7 +26,8 @@ export async function startBooth(input:unknown):Promise<SessionResult & {retryAf
       jar.set("pemilu-device",device,{...cookieOptions,maxAge:86400});
     }
     // Trust forwarded IP only on Vercel, which overwrites this header.
-    const ip=process.env.VERCEL==="1"?requestHeaders.get("x-forwarded-for")?.trim():"127.0.0.1";
+    const forwarded=requestHeaders.get("x-forwarded-for");
+    const ip=process.env.VERCEL==="1"?(forwarded?forwarded.split(",")[0].trim():undefined):"127.0.0.1";
     if(process.env.NODE_ENV==="production" && process.env.VERCEL!=="1")throw new Error("Untrusted deployment");
     if(!ip || !isIP(ip))throw new Error("Missing trusted IP");
     const key=process.env.SUPABASE_SERVICE_ROLE_KEY;

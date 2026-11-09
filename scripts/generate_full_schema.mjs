@@ -8,10 +8,11 @@ const migrationFiles = [
   "20261109093000_phase_5_booth.sql",
   "20261109094000_phase_6_results.sql",
   "20261109095000_phase_7_settings_and_staff.sql",
+  "20261109100000_phase_8_hardening.sql",
 ];
 
 let fullSql = `-- ==============================================================================
--- SISTEM E-VOTING PEMILU: FULL DATABASE SCHEMA & MIGRATIONS (FASE 1 - 7)
+-- SISTEM E-VOTING PEMILU: FULL DATABASE SCHEMA & MIGRATIONS (FASE 1 - 8)
 -- Jalankan file ini secara menyeluruh di Supabase SQL Editor
 -- ==============================================================================
 
