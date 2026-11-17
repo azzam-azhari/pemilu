@@ -34,6 +34,7 @@ import {
   Cell,
 } from "recharts";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getElectionResults } from "@/actions/results";
@@ -264,14 +265,14 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
           {!isAdmin && (
             <Link
               href="/admin"
-              className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-panel px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-md border border-border-soft bg-panel px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <ArrowLeft className="size-3.5" /> Admin
             </Link>
           )}
 
           {settings?.logo_url && (
-            <div className="relative size-8 overflow-hidden rounded-full border border-border-soft">
+            <div className="relative size-8 overflow-hidden rounded-md border border-border-soft">
               <Image src={settings.logo_url} alt="Logo" fill className="object-cover" />
             </div>
           )}
@@ -289,11 +290,11 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
         {/* Action Controls */}
         <div className="flex items-center flex-wrap gap-2">
           {/* View Mode Toggle */}
-          <div className="inline-flex rounded-full border border-border-soft bg-panel p-1">
+          <div className="inline-flex rounded-md border border-border-soft bg-panel p-1">
             <button
               type="button"
               onClick={() => setViewMode("card")}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 viewMode === "card"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -304,7 +305,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
             <button
               type="button"
               onClick={() => setViewMode("chart")}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 viewMode === "chart"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -368,10 +369,16 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
       </header>
 
       {/* Main Container */}
-      <main className="mx-auto w-full max-w-[1440px] px-6 py-8 sm:px-10">
+      <main
+        className={
+          isAdmin
+            ? "w-full min-w-0 py-2"
+            : "mx-auto w-full max-w-[1440px] px-6 py-8 sm:px-10"
+        }
+      >
         {/* Live Booth Activity Indicator */}
         {boothActiveAlert && (
-          <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-5 py-3 text-xs font-medium text-amber-700 dark:text-amber-400 backdrop-blur-[10px]">
+          <div className="mb-6 flex items-center justify-between gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-5 py-3 text-xs font-medium text-amber-700 dark:text-amber-400 backdrop-blur-[10px]">
             <span className="flex items-center gap-2.5">
               <span className="relative flex size-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
@@ -380,25 +387,25 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
               <Zap className="size-3.5 text-amber-500" />
               <span>Pemilih sedang aktif memberikan suara di bilik...</span>
             </span>
-            <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
+            <Badge variant="outline" className="rounded-md border-amber-500/40 bg-amber-500/20 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
               Bilik Sedang Digunakan
-            </span>
+            </Badge>
           </div>
         )}
 
         {/* Status Banner */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border-soft bg-panel/60 p-5 backdrop-blur-[10px]">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-md border border-border-soft bg-panel/60 p-5 backdrop-blur-[10px]">
           <div className="flex items-center gap-3">
             {election?.status === "closed" ? (
               <>
-                <span className="grid size-9 place-items-center rounded-full bg-foreground text-background">
+                <span className="grid size-9 place-items-center rounded-md bg-foreground text-background">
                   <CheckCircle2 className="size-5" />
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-foreground px-2.5 py-0.5 text-[11px] font-semibold text-background uppercase tracking-wide">
+                    <Badge variant="default" className="text-[11px] font-semibold uppercase tracking-wide">
                       Hasil Final
-                    </span>
+                    </Badge>
                     <span className="text-xs text-muted-foreground">Pemilihan Resmi Ditutup</span>
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground">
@@ -414,9 +421,9 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-emerald-600/15 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                    <Badge variant="outline" className="border-emerald-600/30 bg-emerald-600/15 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
                       Hasil Sementara (Live)
-                    </span>
+                    </Badge>
                     <span className="text-xs text-muted-foreground">Pemungutan Suara Sedang Berlangsung</span>
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground">
@@ -428,9 +435,9 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
               <>
                 <span className="size-3 rounded-full bg-amber-500" />
                 <div>
-                  <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+                  <Badge variant="outline" className="border-amber-500/30 bg-amber-500/15 text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
                     Draft Pemilu
-                  </span>
+                  </Badge>
                   <p className="mt-0.5 text-sm text-muted-foreground">
                     Pemilihan belum dibuka. Belum ada suara yang masuk.
                   </p>
@@ -446,15 +453,17 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                 {lastRefreshedAt.toLocaleTimeString("id-ID")}
               </strong>
             </span>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={refreshData}
               disabled={isPending}
-              className="inline-flex size-7 items-center justify-center rounded-full hover:bg-secondary-container transition-colors disabled:opacity-50"
+              className="size-7 rounded-md"
               title="Segarkan data sekarang"
             >
               <RefreshCw className={`size-3.5 ${isPending ? "animate-spin" : ""}`} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -464,7 +473,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
             <button
               type="button"
               onClick={() => setActivePositionId("all")}
-              className={`rounded-full px-5 py-2 text-xs font-medium transition-all ${
+              className={`rounded-md px-5 py-2 text-xs font-medium transition-all ${
                 activePositionId === "all"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "border border-border-soft bg-panel text-muted-foreground hover:text-foreground"
@@ -477,7 +486,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                 key={pos.id}
                 type="button"
                 onClick={() => setActivePositionId(pos.id)}
-                className={`rounded-full px-5 py-2 text-xs font-medium transition-all ${
+                className={`rounded-md px-5 py-2 text-xs font-medium transition-all ${
                   activePositionId === pos.id
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "border border-border-soft bg-panel text-muted-foreground hover:text-foreground"
@@ -491,7 +500,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
 
         {/* Positions Content */}
         {displayedPositions.length === 0 ? (
-          <Card className="rounded-[24px] p-12 text-center text-muted-foreground">
+          <Card className="rounded-card p-12 text-center text-muted-foreground">
             Belum ada jabatan atau kandidat yang terdaftar pada pemilu ini.
           </Card>
         ) : (
@@ -521,7 +530,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                     {position.candidates.map((candidate) => (
                       <Card
                         key={candidate.id}
-                        className={`group relative overflow-hidden rounded-[24px] border p-6 transition-all duration-300 hover:shadow-float ${
+                        className={`group relative overflow-hidden rounded-card border p-6 transition-all duration-300 hover:shadow-float ${
                           candidate.is_highest
                             ? "border-primary/80 dark:border-white/80 ring-1 ring-primary/20 bg-panel/30"
                             : "border-border-soft bg-white/70 dark:bg-panel/50"
@@ -529,15 +538,17 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                       >
                         {/* Winner Pill Badge */}
                         {candidate.is_highest && (
-                          <div className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground shadow-sm dark:bg-white dark:text-black">
-                            <Award className="size-3.5" />
-                            <span>Suara Terbanyak</span>
+                          <div className="absolute right-4 top-4 z-10">
+                            <Badge variant="default" className="gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium shadow-sm">
+                              <Award className="size-3.5" />
+                              <span>Suara Terbanyak</span>
+                            </Badge>
                           </div>
                         )}
 
                         <div className="flex items-start gap-4">
                           {/* Candidate Avatar / Photo */}
-                          <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-panel border border-border-soft">
+                          <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-panel border border-border-soft">
                             {candidate.foto ? (
                               <Image
                                 src={candidate.foto}
@@ -554,9 +565,9 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                           </div>
 
                           <div className="min-w-0 flex-1 pr-12">
-                            <span className="inline-block rounded-full bg-panel px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                            <Badge variant="secondary" className="rounded-md px-2 py-0.5 text-xs font-semibold">
                               Nomor Urut {candidate.nomor}
-                            </span>
+                            </Badge>
                             <h3 className="mt-1 truncate text-lg font-medium tracking-tight text-foreground" title={candidate.nama}>
                               {candidate.nama}
                             </h3>
@@ -596,7 +607,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                   </div>
                 ) : (
                   /* Chart View (Recharts) */
-                  <Card className="rounded-[24px] border border-border-soft p-6 sm:p-8 bg-white/70 dark:bg-panel/50">
+                  <Card className="rounded-card border border-border-soft p-6 sm:p-8 bg-white/70 dark:bg-panel/50">
                     <CardHeader className="p-0 pb-6">
                       <p className="text-xs uppercase tracking-wider text-muted-foreground">
                         Diagram Perolehan Suara
@@ -636,7 +647,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                                   if (active && payload && payload.length) {
                                     const item = payload[0].payload;
                                     return (
-                                      <div className="rounded-2xl border border-border-soft bg-background/95 p-3.5 shadow-float backdrop-blur-[20px] text-xs">
+                                      <div className="rounded-md border border-border-soft bg-background/95 p-3.5 shadow-float backdrop-blur-[20px] text-xs">
                                         <p className="font-semibold text-foreground">
                                           #{item.nomor} {item.fullName}
                                         </p>
@@ -648,9 +659,9 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                                           ({item.percentage}%)
                                         </p>
                                         {item.is_highest && (
-                                          <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-medium text-primary-foreground dark:bg-white dark:text-black">
+                                          <Badge variant="default" className="mt-2 gap-1 rounded-md text-[10px] font-medium">
                                             <Award className="size-3" /> Suara Terbanyak
-                                          </span>
+                                          </Badge>
                                         )}
                                       </div>
                                     );
@@ -658,7 +669,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
                                   return null;
                                 }}
                               />
-                              <Bar dataKey="votes" radius={[8, 8, 0, 0]}>
+                              <Bar dataKey="votes" radius={[6, 6, 0, 0]}>
                                 {position.candidates.map((entry) => (
                                   <Cell
                                     key={`cell-${entry.id}`}
@@ -690,7 +701,7 @@ export function ResultsView({ initialData, electionId, webSettings, isAdmin = fa
       {/* Floating Footer: Partisipasi & Rekonsiliasi Integritas */}
       {summary && (
         <footer className="fixed bottom-4 left-4 right-4 z-30 mx-auto max-w-[1400px]">
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-full border border-border-soft bg-background/90 px-6 py-3.5 shadow-float backdrop-blur-[20px]">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-border-soft bg-background/90 px-6 py-3.5 shadow-float backdrop-blur-[20px]">
             {/* Partisipasi Pemilih */}
             <div className="flex items-center gap-2.5 text-xs text-muted-foreground sm:text-sm">
               <Users className="size-4 text-foreground" />

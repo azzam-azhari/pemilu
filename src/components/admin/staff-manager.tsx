@@ -3,8 +3,29 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, ShieldCheck, Monitor, Trash2, Edit3, UserCheck } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mutateStaff, mutateBooth } from "@/actions/staff";
 import type { BoothItem, StaffItem } from "@/lib/validations/staff";
 
@@ -21,6 +42,8 @@ const statusConfig = {
   nonaktif: { label: "Nonaktif", dot: "bg-outline" },
 };
 
+const selectStyle = "h-11 w-full rounded-md border border-border-soft bg-background px-3 py-2 text-sm outline-none transition focus:border-primary";
+
 export function StaffManager({
   elections,
   booths,
@@ -29,7 +52,7 @@ export function StaffManager({
 }: StaffManagerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [activeTab, setActiveTab] = useState<"staff" | "booths">("staff");
+  const [activeTab, setActiveTab] = useState<string>("staff");
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
 
   // Modal / Form state for Staff
@@ -140,15 +163,15 @@ export function StaffManager({
       {/* Election Selector & Status */}
       {elections.length > 1 && (
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-muted-foreground font-medium">Pilih Pemilu:</span>
+          <span className="font-medium text-muted-foreground">Pilih Pemilu:</span>
           {elections.map((el) => (
             <a
               key={el.id}
               href={`/admin/petugas?election=${el.id}`}
-              className={`rounded-full px-3.5 py-1 font-medium transition-colors ${
+              className={`rounded-md px-3.5 py-1 font-medium transition-colors ${
                 el.id === currentElectionId
                   ? "bg-primary text-primary-foreground"
-                  : "bg-panel text-muted-foreground hover:text-foreground border border-border-soft"
+                  : "border border-border-soft bg-panel text-muted-foreground hover:text-foreground"
               }`}
             >
               {el.nama} ({el.status})
@@ -159,164 +182,80 @@ export function StaffManager({
 
       {/* Alert status message */}
       {message && (
-        <div
-          className={`rounded-2xl border p-4 text-sm ${
-            message.error
-              ? "border-error/30 bg-error/10 text-error"
-              : "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
-          }`}
-        >
-          {message.text}
-        </div>
+        <Alert variant={message.error ? "destructive" : "default"}>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
 
-      {/* Tab Switcher */}
-      <div className="flex items-center justify-between border-b border-border-soft pb-4">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveTab("staff")}
-            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium transition-all ${
-              activeTab === "staff"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "border border-border-soft bg-panel text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <ShieldCheck className="size-3.5" />
-            Daftar Petugas ({staff.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("booths")}
-            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium transition-all ${
-              activeTab === "booths"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "border border-border-soft bg-panel text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Monitor className="size-3.5" />
-            Daftar Bilik ({booths.length})
-          </button>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-soft pb-4">
+          <TabsList className="rounded-md">
+            <TabsTrigger value="staff" className="gap-2 rounded-md text-xs">
+              <ShieldCheck className="size-3.5" />
+              Daftar Petugas ({staff.length})
+            </TabsTrigger>
+            <TabsTrigger value="booths" className="gap-2 rounded-md text-xs">
+              <Monitor className="size-3.5" />
+              Daftar Bilik ({booths.length})
+            </TabsTrigger>
+          </TabsList>
+
+          {activeTab === "staff" ? (
+            <Button size="sm" onClick={() => openStaffEditor()} className="gap-1.5 text-xs">
+              <Plus className="size-3.5" /> Tambah Petugas
+            </Button>
+          ) : (
+            <Button size="sm" onClick={() => openBoothEditor()} className="gap-1.5 text-xs">
+              <Plus className="size-3.5" /> Tambah Bilik
+            </Button>
+          )}
         </div>
 
-        {activeTab === "staff" ? (
-          <Button size="sm" onClick={() => openStaffEditor()} className="gap-1.5 text-xs">
-            <Plus className="size-3.5" /> Tambah Petugas
-          </Button>
-        ) : (
-          <Button size="sm" onClick={() => openBoothEditor()} className="gap-1.5 text-xs">
-            <Plus className="size-3.5" /> Tambah Bilik
-          </Button>
-        )}
-      </div>
-
-      {/* Staff Tab Content */}
-      {activeTab === "staff" && (
-        <div className="space-y-6">
-          {/* Staff Editor Form Card */}
-          {staffEditing !== null && (
-            <Card className="rounded-[24px] p-6 border border-border-soft bg-panel/40">
-              <CardHeader className="p-0 pb-4">
-                <CardTitle className="text-lg">
-                  {staffEditing === "new" ? "Tambah Data Petugas" : "Edit Data Petugas"}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Petugas bertugas memfasilitasi jalannya pemungutan suara di bilik (tanpa akses login admin).
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleStaffSubmit} className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="grid gap-1.5 text-xs font-medium">
-                    Nama Petugas
-                    <input
-                      type="text"
-                      required
-                      minLength={2}
-                      maxLength={160}
-                      value={staffName}
-                      onChange={(e) => setStaffName(e.target.value)}
-                      placeholder="Masukkan nama lengkap petugas"
-                      className="rounded-input border border-border-soft bg-background p-3 text-sm"
-                    />
-                  </label>
-                  <label className="grid gap-1.5 text-xs font-medium">
-                    Penempatan Bilik
-                    <select
-                      value={staffBoothId}
-                      onChange={(e) => setStaffBoothId(e.target.value)}
-                      className="rounded-input border border-border-soft bg-background p-3 text-sm"
-                    >
-                      <option value="">— Belum Ditempatkan —</option>
-                      {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.nama} ({statusConfig[b.status].label})
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                <div className="flex gap-2">
-                  <Button type="submit" size="sm" disabled={isPending}>
-                    {isPending ? "Menyimpan…" : "Simpan Petugas"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setStaffEditing(null)}
-                    disabled={isPending}
-                  >
-                    Batal
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          )}
-
-          {/* Staff Table */}
-          <Card className="rounded-[24px] border border-border-soft overflow-hidden">
+        {/* Staff Tab Content */}
+        <TabsContent value="staff" className="space-y-6">
+          <Card className="rounded-card border border-border-soft overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-border-soft bg-panel/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th className="p-4 pl-6">Nama Petugas</th>
-                    <th className="p-4">Bilik Penugasan</th>
-                    <th className="p-4">Status Bilik</th>
-                    <th className="p-4 pr-6 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-soft">
+              <Table className="text-sm">
+                <TableHeader>
+                  <TableRow className="bg-panel/50">
+                    <TableHead className="pl-6">Nama Petugas</TableHead>
+                    <TableHead>Bilik Penugasan</TableHead>
+                    <TableHead>Status Bilik</TableHead>
+                    <TableHead className="pr-6 text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {staff.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                    <TableRow>
+                      <TableCell colSpan={4} className="p-8 text-center text-muted-foreground">
                         Belum ada petugas yang tercatat. Silakan klik &quot;Tambah Petugas&quot;.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     staff.map((s) => (
-                      <tr key={s.id} className="hover:bg-panel/20 transition-colors">
-                        <td className="p-4 pl-6 font-medium">
+                      <TableRow key={s.id}>
+                        <TableCell className="pl-6 font-medium">
                           <div className="flex items-center gap-2">
-                            <span className="grid size-7 place-items-center rounded-full bg-panel text-muted-foreground">
+                            <span className="grid size-7 place-items-center rounded-md bg-panel text-muted-foreground">
                               <UserCheck className="size-3.5" />
                             </span>
                             {s.nama}
                           </div>
-                        </td>
-                        <td className="p-4 text-muted-foreground">
-                          {s.booth_name ?? <span className="italic text-xs">Belum ditentukan</span>}
-                        </td>
-                        <td className="p-4">
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {s.booth_name ?? <span className="text-xs italic">Belum ditentukan</span>}
+                        </TableCell>
+                        <TableCell>
                           {s.booth_status ? (
-                            <span className="flex items-center gap-2 text-xs">
+                            <Badge variant="outline" className="gap-1.5 py-0.5 text-xs font-normal">
                               <span className={`size-2 rounded-full ${statusConfig[s.booth_status].dot}`} />
                               {statusConfig[s.booth_status].label}
-                            </span>
+                            </Badge>
                           ) : (
                             <span className="text-xs text-muted-foreground">—</span>
                           )}
-                        </td>
-                        <td className="p-4 pr-6 text-right">
+                        </TableCell>
+                        <TableCell className="pr-6 text-right">
                           <div className="flex justify-end gap-1.5">
                             <Button
                               variant="outline"
@@ -339,96 +278,36 @@ export function StaffManager({
                               <Trash2 className="size-3.5" />
                             </Button>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </Card>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Booths Tab Content */}
-      {activeTab === "booths" && (
-        <div className="space-y-6">
-          {/* Booth Editor Form Card */}
-          {boothEditing !== null && (
-            <Card className="rounded-[24px] p-6 border border-border-soft bg-panel/40">
-              <CardHeader className="p-0 pb-4">
-                <CardTitle className="text-lg">
-                  {boothEditing === "new" ? "Tambah Bilik Suara" : "Edit Bilik Suara"}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Bilik suara dipakai oleh pemilih di lokasi pemungutan suara fisik.
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleBoothSubmit} className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="grid gap-1.5 text-xs font-medium">
-                    Nama Bilik
-                    <input
-                      type="text"
-                      required
-                      minLength={2}
-                      maxLength={120}
-                      value={boothName}
-                      onChange={(e) => setBoothName(e.target.value)}
-                      placeholder="Contoh: Bilik 1, Bilik A"
-                      className="rounded-input border border-border-soft bg-background p-3 text-sm"
-                    />
-                  </label>
-                  <label className="grid gap-1.5 text-xs font-medium">
-                    Status Bilik
-                    <select
-                      value={boothStatus}
-                      onChange={(e) => setBoothStatus(e.target.value as typeof boothStatus)}
-                      className="rounded-input border border-border-soft bg-background p-3 text-sm"
-                    >
-                      <option value="kosong">Kosong / Siap</option>
-                      <option value="terpakai">Sedang Digunakan</option>
-                      <option value="nonaktif">Nonaktif</option>
-                    </select>
-                  </label>
-                </div>
-                <div className="flex gap-2">
-                  <Button type="submit" size="sm" disabled={isPending}>
-                    {isPending ? "Menyimpan…" : "Simpan Bilik"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBoothEditing(null)}
-                    disabled={isPending}
-                  >
-                    Batal
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          )}
-
-          {/* Booths Grid */}
+        {/* Booths Tab Content */}
+        <TabsContent value="booths" className="space-y-6">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {booths.length === 0 ? (
-              <Card className="col-span-full rounded-[24px] p-12 text-center text-muted-foreground">
+              <Card className="col-span-full rounded-card p-12 text-center text-muted-foreground">
                 Belum ada bilik suara untuk pemilu ini. Silakan klik &quot;Tambah Bilik&quot;.
               </Card>
             ) : (
               booths.map((b) => (
-                <Card key={b.id} className="rounded-[24px] border border-border-soft p-6 flex flex-col justify-between">
+                <Card key={b.id} className="rounded-card border border-border-soft p-6 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-2 rounded-full bg-panel px-3 py-1 text-xs font-semibold">
+                      <span className="flex items-center gap-2 rounded-md bg-panel px-3 py-1 text-xs font-semibold">
                         <Monitor className="size-3.5 text-muted-foreground" />
                         {b.nama}
                       </span>
-                      <span className="flex items-center gap-1.5 text-xs">
+                      <Badge variant="outline" className="gap-1.5 py-0.5 text-xs font-normal">
                         <span className={`size-2 rounded-full ${statusConfig[b.status].dot}`} />
                         {statusConfig[b.status].label}
-                      </span>
+                      </Badge>
                     </div>
 
                     <div className="mt-4">
@@ -447,7 +326,7 @@ export function StaffManager({
                       disabled={isPending}
                       className="text-xs"
                     >
-                      <Edit3 className="size-3.5 mr-1" /> Edit
+                      <Edit3 className="mr-1 size-3.5" /> Edit
                     </Button>
                     <Button
                       variant="outline"
@@ -456,15 +335,118 @@ export function StaffManager({
                       disabled={isPending}
                       className="text-xs text-error hover:bg-error/10 hover:text-error"
                     >
-                      <Trash2 className="size-3.5 mr-1" /> Hapus
+                      <Trash2 className="mr-1 size-3.5" /> Hapus
                     </Button>
                   </div>
                 </Card>
               ))
             )}
           </div>
-        </div>
-      )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Staff Editor Dialog */}
+      <Dialog open={staffEditing !== null} onOpenChange={(open) => !open && setStaffEditing(null)}>
+        <DialogContent className="rounded-card sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {staffEditing === "new" ? "Tambah Data Petugas" : "Edit Data Petugas"}
+            </DialogTitle>
+            <DialogDescription>
+              Petugas bertugas memfasilitasi jalannya pemungutan suara di bilik (tanpa akses login admin).
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleStaffSubmit} className="space-y-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="staff-name">Nama Petugas</Label>
+              <Input
+                id="staff-name"
+                required
+                minLength={2}
+                maxLength={160}
+                value={staffName}
+                onChange={(e) => setStaffName(e.target.value)}
+                placeholder="Masukkan nama lengkap petugas"
+                className="h-11 bg-panel"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="staff-booth">Penempatan Bilik</Label>
+              <select
+                id="staff-booth"
+                value={staffBoothId}
+                onChange={(e) => setStaffBoothId(e.target.value)}
+                className={selectStyle}
+              >
+                <option value="">— Belum Ditempatkan —</option>
+                {booths.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.nama} ({statusConfig[b.status].label})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter className="mt-4 gap-2">
+              <Button type="button" variant="outline" onClick={() => setStaffEditing(null)} disabled={isPending}>
+                Batal
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Menyimpan…" : "Simpan Petugas"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Booth Editor Dialog */}
+      <Dialog open={boothEditing !== null} onOpenChange={(open) => !open && setBoothEditing(null)}>
+        <DialogContent className="rounded-card sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {boothEditing === "new" ? "Tambah Bilik Suara" : "Edit Bilik Suara"}
+            </DialogTitle>
+            <DialogDescription>
+              Bilik suara dipakai oleh pemilih di lokasi pemungutan suara fisik.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleBoothSubmit} className="space-y-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="booth-name">Nama Bilik</Label>
+              <Input
+                id="booth-name"
+                required
+                minLength={2}
+                maxLength={120}
+                value={boothName}
+                onChange={(e) => setBoothName(e.target.value)}
+                placeholder="Contoh: Bilik 1, Bilik A"
+                className="h-11 bg-panel"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="booth-status">Status Bilik</Label>
+              <select
+                id="booth-status"
+                value={boothStatus}
+                onChange={(e) => setBoothStatus(e.target.value as typeof boothStatus)}
+                className={selectStyle}
+              >
+                <option value="kosong">Kosong / Siap</option>
+                <option value="terpakai">Sedang Digunakan</option>
+                <option value="nonaktif">Nonaktif</option>
+              </select>
+            </div>
+            <DialogFooter className="mt-4 gap-2">
+              <Button type="button" variant="outline" onClick={() => setBoothEditing(null)} disabled={isPending}>
+                Batal
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Menyimpan…" : "Simpan Bilik"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

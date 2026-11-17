@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { getElectionResults, getElectionsList } from "@/actions/results";
 import { getWebSettings } from "@/actions/settings";
 import { ResultsView } from "@/components/results/results-view";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Hasil Voting — Admin",
@@ -20,31 +22,48 @@ export default async function AdminHasilPage({
   ]);
 
   return (
-    <div>
-      {elections.length > 1 && (
-        <div className="border-b border-border-soft bg-panel/40 px-6 py-2.5 sm:px-10 text-xs flex items-center gap-2">
-          <span className="text-muted-foreground font-medium">Pilih Pemilu:</span>
-          <div className="flex flex-wrap gap-1.5">
+    <main className="w-full min-w-0 flex-1 space-y-3 p-4 md:p-6">
+      <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Laporan Pemungutan Suara
+          </p>
+          <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Hasil Voting & Perolehan Suara
+          </h1>
+        </div>
+
+        {elections.length > 1 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <span className="text-xs font-medium text-muted-foreground shrink-0">Pemilu:</span>
             {elections.map((el) => {
-              const isSelected = (electionId ? el.id === electionId : el.id === initialData.election?.id);
+              const isSelected = electionId
+                ? el.id === electionId
+                : el.id === initialData.election?.id;
               return (
-                <a
+                <Button
                   key={el.id}
-                  href={`/admin/hasil?election=${el.id}`}
-                  className={`rounded-full px-3 py-1 font-medium transition-colors ${
-                    isSelected
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-panel text-muted-foreground hover:text-foreground border border-border-soft"
-                  }`}
+                  asChild
+                  size="sm"
+                  variant={isSelected ? "default" : "outline"}
+                  className="h-7 text-xs px-2.5 font-normal rounded-full shrink-0"
                 >
-                  {el.nama} ({el.status})
-                </a>
+                  <Link href={`/admin/hasil?election=${el.id}`}>
+                    {el.nama} ({el.status})
+                  </Link>
+                </Button>
               );
             })}
           </div>
-        </div>
-      )}
-      <ResultsView initialData={initialData} electionId={electionId} webSettings={webSettings} isAdmin={true} />
-    </div>
+        )}
+      </div>
+
+      <ResultsView
+        initialData={initialData}
+        electionId={electionId}
+        webSettings={webSettings}
+        isAdmin={true}
+      />
+    </main>
   );
 }

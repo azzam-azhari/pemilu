@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { CircleDot, Monitor, RefreshCw, UsersRound } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import type { BoothItem } from "@/lib/validations/staff";
 
@@ -110,13 +112,13 @@ export function BoothMonitor({ initialBooths, electionId }: BoothMonitorProps) {
     <div className="space-y-4">
       {/* Counters */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="flex items-center justify-between rounded-2xl bg-panel p-4">
+        <div className="flex items-center justify-between rounded-md bg-panel p-4">
           <span className="flex items-center gap-2 text-xs">
             <CircleDot className="size-3.5 text-emerald-600" /> Siap / Kosong
           </span>
           <span className="text-base font-semibold">{ready}</span>
         </div>
-        <div className="flex items-center justify-between rounded-2xl bg-panel p-4">
+        <div className="flex items-center justify-between rounded-md bg-panel p-4">
           <span className="flex items-center gap-2 text-xs">
             <UsersRound className="size-3.5 text-amber-500" /> Terpakai
           </span>
@@ -136,7 +138,7 @@ export function BoothMonitor({ initialBooths, electionId }: BoothMonitorProps) {
             return (
               <div
                 key={b.id}
-                className="flex items-center justify-between rounded-xl border border-border-soft bg-background/60 p-3 text-xs transition-colors"
+                className="flex items-center justify-between rounded-md border border-border-soft bg-background/60 p-3 text-xs transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <Monitor className="size-3.5 text-muted-foreground" />
@@ -145,10 +147,10 @@ export function BoothMonitor({ initialBooths, electionId }: BoothMonitorProps) {
                     <span className="text-[11px] text-muted-foreground">({b.staff_name})</span>
                   )}
                 </div>
-                <span className={`flex items-center gap-1.5 font-medium ${config.text}`}>
+                <Badge variant="outline" className={`gap-1.5 py-0.5 font-medium ${config.text}`}>
                   <span className={`size-2 rounded-full ${config.dot}`} />
                   {config.label}
-                </span>
+                </Badge>
               </div>
             );
           })
@@ -160,14 +162,16 @@ export function BoothMonitor({ initialBooths, electionId }: BoothMonitorProps) {
           <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
           Realtime aktif
         </span>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={fetchLatestBooths}
           disabled={isPending}
-          className="hover:text-foreground inline-flex items-center gap-1"
+          className="h-7 gap-1 px-2 text-xs hover:text-foreground"
         >
           <RefreshCw className={`size-3 ${isPending ? "animate-spin" : ""}`} /> Segarkan
-        </button>
+        </Button>
       </div>
     </div>
   );

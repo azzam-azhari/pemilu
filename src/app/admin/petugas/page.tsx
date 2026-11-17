@@ -12,20 +12,20 @@ export default async function AdminPetugasPage({
   searchParams: Promise<{ election?: string }>;
 }) {
   const { election: electionId } = await searchParams;
-  const { elections, booths, staff, electionId: activeElectionId } = await getStaffAndBooths(electionId);
+  const { elections, booths, staff, electionId: activeElectionId } =
+    await getStaffAndBooths(electionId);
 
   return (
-    <main className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10">
-      <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Kelola Petugas & Bilik
-        </p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Petugas & Penempatan Bilik
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Pencatatan data petugas pemilu dan penempatan bilik suara fisik di lokasi pemilihan.
-        </p>
+    <main className="w-full min-w-0 flex-1 space-y-4 p-4 md:p-6">
+      <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Operasional TPS
+          </p>
+          <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Kelola Petugas & Bilik
+          </h1>
+        </div>
       </div>
 
       <StaffManager
@@ -37,4 +37,3 @@ export default async function AdminPetugasPage({
     </main>
   );
 }
-

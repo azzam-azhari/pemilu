@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Check, ShieldCheck, Vote, Radio, LayoutDashboard } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -19,11 +20,11 @@ export default function HomePage() {
             <span className="text-sm font-semibold tracking-wide">E-Voting Pemilu</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/admin">
-              <Button variant="outline" size="sm" className="gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link href="/admin">
                 <LayoutDashboard className="size-3.5" /> Admin
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <ThemeToggle />
           </div>
         </header>
@@ -33,30 +34,32 @@ export default function HomePage() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Sistem Pemilihan Umum Digital
             </p>
-            <h1 className="text-4xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-5xl lg:text-6xl">
+            <h1 className="font-heading text-4xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-5xl lg:text-6xl">
               Satu suara rahasia, dijaga dengan integritas.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
               Platform e-voting berkeamanan tinggi dengan kode sekali pakai, transaksi suara atomik anti-ganda, rekonsiliasi suara otomatis, dan pemantauan live real-time.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/bilik">
-                <Button size="lg" className="gap-2 shadow-sm">
+              <Button asChild size="lg" className="gap-2 shadow-sm">
+                <Link href="/bilik">
                   <Vote className="size-4" /> Masuk Bilik Suara <ArrowRight className="size-4" />
-                </Button>
-              </Link>
-              <Link href="/live">
-                <Button variant="secondary" size="lg" className="gap-2">
+                </Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg" className="gap-2">
+                <Link href="/live">
                   <Radio className="size-4 text-emerald-600 dark:text-emerald-400" /> Pantau Hasil Live
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
 
           <Card className="max-w-xl justify-self-end border border-border-soft bg-card/85 shadow-sm backdrop-blur-[20px]">
             <CardHeader>
-              <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                <span className="size-2 rounded-full bg-emerald-600 animate-pulse" /> Sistem Siap & Terverifikasi
+              <div className="mb-2">
+                <Badge variant="outline" className="gap-1.5 py-1 text-xs font-medium uppercase tracking-[0.14em]">
+                  <span className="size-2 rounded-full bg-emerald-600 animate-pulse" /> Sistem Siap & Terverifikasi
+                </Badge>
               </div>
               <CardTitle className="text-2xl">Keamanan & Integritas Terjamin</CardTitle>
               <CardDescription>
@@ -83,9 +86,9 @@ export default function HomePage() {
             </CardContent>
             <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t border-border-soft pt-5">
               <span className="text-xs text-muted-foreground">Fase 8: QA & Hardening</span>
-              <Link href="/admin">
-                <Button variant="outline" size="sm">Buka Dashboard Admin</Button>
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/admin">Buka Dashboard Admin</Link>
+              </Button>
             </CardFooter>
           </Card>
         </section>

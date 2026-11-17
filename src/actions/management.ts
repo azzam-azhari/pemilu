@@ -30,7 +30,7 @@ export async function manage(input: unknown, fileData?: FormData) {
       if(error) throw new Error("Unggah foto gagal. Periksa bucket Storage.");
       uploaded=path; foto=storage.getPublicUrl(path).data.publicUrl;
     }
-    const payload=v.entity==="elections" ? {nama:v.nama,periode_mulai:v.mulai ? new Date(v.mulai+"T00:00:00+07:00").toISOString():null,periode_selesai:v.selesai ? new Date(v.selesai+"T00:00:00+07:00").toISOString():null} : v.entity==="positions" ? {nama_jabatan:v.nama,election_id:z.string().uuid().parse(v.parent),urutan:v.nomor} : {nama:v.nama,position_id:z.string().uuid().parse(v.parent),no_urut:v.nomor,info:v.info,visi_misi:v.visi_misi,...(foto?{foto}:{})};
+    const payload=v.entity==="elections" ? {nama:v.nama,periode_mulai:v.mulai ? new Date(v.mulai+"T00:00:00+07:00").toISOString():null,periode_selesai:v.selesai ? new Date(v.selesai+"T00:00:00+07:00").toISOString():null,...(v.status?{status:v.status}:{})} : v.entity==="positions" ? {nama_jabatan:v.nama,election_id:z.string().uuid().parse(v.parent),urutan:v.nomor} : {nama:v.nama,position_id:z.string().uuid().parse(v.parent),no_urut:v.nomor,info:v.info,visi_misi:v.visi_misi,...(foto?{foto}:{})};
     const values: Record<string,string|number|null|undefined> = payload;
     const query=v.id?db.from(v.entity).update(values).eq("id",v.id):db.from(v.entity).insert(values);
     const {error}=await query.select("id").single();
@@ -43,7 +43,7 @@ export async function manage(input: unknown, fileData?: FormData) {
 }
 export async function change(input: unknown) {
   try {
-    const v=z.object({entity:z.enum(["elections","positions","candidates"]),id:z.string().uuid(),status:z.enum(["open","closed"]).optional(),order:z.array(z.string().uuid()).max(1000).optional()}).parse(input);
+    const v=z.object({entity:z.enum(["elections","positions","candidates"]),id:z.string().uuid(),status:z.enum(["draft","open","closed"]).optional(),order:z.array(z.string().uuid()).max(1000).optional()}).parse(input);
     const db=await client();
     const result=v.order?await db.rpc("reorder_positions",{p_election:v.id,p_ids:v.order}):v.status?await db.from("elections").update({status:v.status}).eq("id",v.id).select("id").single():await db.from(v.entity).delete().eq("id",v.id).select("id").single();
     if(result.error) throw new Error(result.error.message);

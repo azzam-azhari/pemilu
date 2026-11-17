@@ -3,8 +3,19 @@
 import { useState, useTransition } from "react";
 import { useQueryStates, parseAsString, parseAsInteger, parseAsStringLiteral } from "nuqs";
 import { Download, FileSpreadsheet, FileText, Printer, Search, ShieldAlert } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { exportAuditLogs, exportElectionResults } from "@/actions/audit";
 import type { AuditLogItem } from "@/lib/validations/audit";
 
@@ -15,7 +26,7 @@ interface AuditTableProps {
   elections: { id: string; nama: string; status: string }[];
 }
 
-const field = "rounded-input border border-border-soft bg-panel p-2.5 text-xs text-foreground";
+const selectStyle = "h-9 rounded-md border border-border-soft bg-panel px-3 py-1 text-xs text-foreground outline-none transition focus:border-primary";
 
 export function AuditTable({ rows, count, actionsList, elections }: AuditTableProps) {
   const [isPending, startTransition] = useTransition();
@@ -74,9 +85,9 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full min-w-0 space-y-3">
       {/* Top Action / Export Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-soft pb-4 print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-soft pb-2.5 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
@@ -112,7 +123,7 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
             <select
               value={selectedElection}
               onChange={(e) => setSelectedElection(e.target.value)}
-              className={field}
+              className={selectStyle}
             >
               {elections.map((e) => (
                 <option key={e.id} value={e.id}>
@@ -142,7 +153,7 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
       </div>
 
       {/* Filter Card */}
-      <Card className="rounded-[24px] p-5 border border-border-soft bg-panel/30 print:hidden">
+      <Card className="rounded-card border border-border-soft bg-panel/30 p-3 print:hidden">
         <form
           className="flex flex-wrap items-end gap-3"
           onSubmit={(e) => {
@@ -154,26 +165,28 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
             });
           }}
         >
-          <label className="grid gap-1 text-xs font-medium">
-            Pencarian
+          <div className="grid gap-1">
+            <Label htmlFor="audit-q" className="text-xs">Pencarian</Label>
             <div className="relative">
-              <input
+              <Input
+                id="audit-q"
                 key={"q" + query.q}
                 name="q"
                 defaultValue={query.q}
                 placeholder="Cari aksi, aktor, atau IP..."
-                className={`${field} pl-8 w-60`}
+                className="w-60 bg-panel pl-8 text-xs"
               />
-              <Search className="absolute left-2.5 top-3 size-3.5 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
             </div>
-          </label>
+          </div>
 
-          <label className="grid gap-1 text-xs font-medium">
-            Filter Aksi
+          <div className="grid gap-1">
+            <Label htmlFor="audit-filter-aksi" className="text-xs">Filter Aksi</Label>
             <select
+              id="audit-filter-aksi"
               value={query.aksi}
               onChange={(e) => void setQuery({ aksi: e.target.value, page: 1 })}
-              className={field}
+              className={selectStyle}
             >
               <option value="semua">Semua Aksi</option>
               {actionsList.map((a) => (
@@ -182,27 +195,29 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="grid gap-1 text-xs font-medium">
-            Dari Tanggal
-            <input
+          <div className="grid gap-1">
+            <Label htmlFor="audit-dari" className="text-xs">Dari Tanggal</Label>
+            <Input
+              id="audit-dari"
               type="date"
               value={query.dari}
               onChange={(e) => void setQuery({ dari: e.target.value, page: 1 })}
-              className={field}
+              className="w-40 bg-panel text-xs"
             />
-          </label>
+          </div>
 
-          <label className="grid gap-1 text-xs font-medium">
-            Sampai Tanggal
-            <input
+          <div className="grid gap-1">
+            <Label htmlFor="audit-sampai" className="text-xs">Sampai Tanggal</Label>
+            <Input
+              id="audit-sampai"
               type="date"
               value={query.sampai}
               onChange={(e) => void setQuery({ sampai: e.target.value, page: 1 })}
-              className={field}
+              className="w-40 bg-panel text-xs"
             />
-          </label>
+          </div>
 
           <Button type="submit" size="sm" variant="secondary" className="text-xs">
             Terapkan
@@ -239,53 +254,53 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
       </div>
 
       {/* Audit Log Table */}
-      <Card className="rounded-[24px] border border-border-soft overflow-hidden print:border-none print:shadow-none">
+      <Card className="rounded-card border border-border-soft overflow-hidden print:border-none print:shadow-none">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
-            <thead>
-              <tr className="border-b border-border-soft bg-panel/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="p-4 pl-6">Waktu (WIB)</th>
-                <th className="p-4">Jenis Aksi</th>
-                <th className="p-4">Aktor</th>
-                <th className="p-4">IP Address</th>
-                <th className="p-4 pr-6">Detail Aktivitas</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-soft">
+          <Table className="text-xs sm:text-sm">
+            <TableHeader>
+              <TableRow className="bg-panel/50">
+                <TableHead className="pl-6">Waktu (WIB)</TableHead>
+                <TableHead>Jenis Aksi</TableHead>
+                <TableHead>Aktor</TableHead>
+                <TableHead>IP Address</TableHead>
+                <TableHead className="pr-6">Detail Aktivitas</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {rows.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                <TableRow>
+                  <TableCell colSpan={5} className="p-8 text-center text-muted-foreground">
                     Tidak ada catatan aktivitas yang sesuai dengan filter.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 rows.map((r) => (
-                  <tr key={r.id} className="hover:bg-panel/20 transition-colors">
-                    <td className="p-4 pl-6 whitespace-nowrap text-xs text-muted-foreground">
+                  <TableRow key={r.id}>
+                    <TableCell className="pl-6 whitespace-nowrap text-xs text-muted-foreground">
                       {new Date(r.created_at).toLocaleString("id-ID", {
                         dateStyle: "medium",
                         timeStyle: "short",
                         timeZone: "Asia/Jakarta",
                       })}
-                    </td>
-                    <td className="p-4 font-medium whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-panel px-2.5 py-1 text-xs">
+                    </TableCell>
+                    <TableCell className="font-medium whitespace-nowrap">
+                      <Badge variant="outline" className="gap-1.5 py-0.5 text-xs">
                         <ShieldAlert className="size-3 text-muted-foreground" />
                         {r.aksi.replaceAll("_", " ")}
-                      </span>
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-xs">{r.aktor}</td>
-                    <td className="p-4 whitespace-nowrap text-xs text-muted-foreground">
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-xs">{r.aktor}</TableCell>
+                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                       {r.ip ?? "—"}
-                    </td>
-                    <td className="p-4 pr-6 text-xs text-muted-foreground font-mono max-w-xs sm:max-w-md truncate">
+                    </TableCell>
+                    <TableCell className="pr-6 text-xs text-muted-foreground font-mono max-w-xs sm:max-w-md truncate">
                       {JSON.stringify(r.detail ?? {})}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         {/* Pagination bar */}
@@ -318,7 +333,7 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
             <select
               value={query.size}
               onChange={(e) => void setQuery({ size: Number(e.target.value), page: 1 })}
-              className={field}
+              className={selectStyle}
             >
               {[10, 25, 50, 100].map((n) => (
                 <option key={n} value={n}>
@@ -332,4 +347,3 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
     </div>
   );
 }
-

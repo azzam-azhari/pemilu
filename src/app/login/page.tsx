@@ -1,10 +1,13 @@
-import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { AlertCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { signIn } from "@/actions/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const errors: Record<string, string> = {
   invalid: "Email atau kata sandi tidak valid.",
@@ -20,18 +23,53 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="absolute right-6 top-6"><ThemeToggle /></div>
       <Card className="relative w-full max-w-md">
         <CardHeader>
-          <span className="mb-5 grid size-11 place-items-center rounded-full bg-primary text-primary-foreground"><ShieldCheck className="size-5" /></span>
-          <CardTitle>Masuk ke dashboard</CardTitle>
+          <span className="mb-2 grid size-11 place-items-center rounded-full bg-primary text-primary-foreground">
+            <ShieldCheck className="size-5" />
+          </span>
+          <CardTitle className="text-2xl font-semibold">Masuk ke dashboard</CardTitle>
           <CardDescription>Gunakan akun admin yang dibuat oleh penyelenggara pemilu.</CardDescription>
         </CardHeader>
         <CardContent>
-          {error && errors[error] ? <p role="alert" className="mb-6 rounded-input bg-error-container px-4 py-3 text-sm text-on-error-container">{errors[error]}</p> : null}
+          {error && errors[error] ? (
+            <Alert variant="destructive" className="mb-6 rounded-input">
+              <AlertCircle className="size-4" />
+              <AlertDescription>{errors[error]}</AlertDescription>
+            </Alert>
+          ) : null}
           <form action={signIn} className="space-y-5">
-            <label className="grid gap-2 text-sm font-medium">Email<input name="email" type="email" autoComplete="email" required className="h-11 rounded-input border border-border-soft bg-panel px-4 text-sm outline-none transition focus:border-primary" placeholder="admin@organisasi.id" /></label>
-            <label className="grid gap-2 text-sm font-medium">Kata sandi<input name="password" type="password" autoComplete="current-password" required className="h-11 rounded-input border border-border-soft bg-panel px-4 text-sm outline-none transition focus:border-primary" /></label>
-            <Button type="submit" className="w-full"><LockKeyhole className="size-4" /> Masuk sebagai admin</Button>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="h-11 rounded-input bg-panel"
+                placeholder="admin@organisasi.id"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Kata sandi</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="h-11 rounded-input bg-panel"
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              <LockKeyhole className="size-4" /> Masuk sebagai admin
+            </Button>
           </form>
-          <p className="mt-8 text-center text-xs leading-relaxed text-muted-foreground">Akses hanya untuk penyelenggara. <Link href="/" className="underline underline-offset-4">Kembali ke beranda</Link></p>
+          <p className="mt-8 text-center text-xs leading-relaxed text-muted-foreground">
+            Akses hanya untuk penyelenggara.{" "}
+            <Link href="/" className="underline underline-offset-4">
+              Kembali ke beranda
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>

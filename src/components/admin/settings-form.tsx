@@ -4,14 +4,21 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, KeyRound, Palette, Save, Shield, Upload } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { saveWebSettings } from "@/actions/settings";
 import type { WebSettings } from "@/lib/validations/settings";
 
 interface SettingsFormProps {
   initialSettings: WebSettings;
 }
+
+const selectStyle =
+  "h-9 rounded-md border border-border-soft bg-background px-3 py-1 text-xs text-foreground outline-none transition focus:border-primary";
 
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const router = useRouter();
@@ -52,6 +59,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         setMessage({ text: res.message });
         if (res.settings) {
           setSettings(res.settings);
+          setLogoPreview(res.settings.logo_url ?? null);
         }
         router.refresh();
       } else {
@@ -61,157 +69,172 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-4">
       {/* Alert status message */}
       {message && (
-        <div
-          className={`rounded-2xl border p-4 text-sm ${
-            message.error
-              ? "border-error/30 bg-error/10 text-error"
-              : "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
-          }`}
-        >
-          {message.text}
-        </div>
+        <Alert variant={message.error ? "destructive" : "default"} className="py-2.5 text-xs">
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* Identitas Penyelenggara */}
-        <Card className="rounded-[24px] border border-border-soft p-6 sm:p-8">
-          <CardHeader className="p-0 pb-6">
-            <span className="mb-3 grid size-10 place-items-center rounded-full bg-panel">
-              <Shield className="size-4 text-muted-foreground" />
-            </span>
-            <CardTitle>Identitas Penyelenggara</CardTitle>
-            <CardDescription className="text-xs">
-              Nama dan logo yang ditampilkan pada surat suara bilik dan layar proyektor.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 space-y-5">
-            <label className="grid gap-1.5 text-xs font-medium">
-              Nama Penyelenggara / Organisasi
-              <input
-                type="text"
-                required
-                minLength={2}
-                maxLength={120}
-                value={settings.nama_penyelenggara}
-                onChange={(e) =>
-                  setSettings({ ...settings, nama_penyelenggara: e.target.value })
-                }
-                placeholder="Contoh: KPU Mahasiswa 2026"
-                className="rounded-input border border-border-soft bg-background p-3 text-sm"
-              />
-            </label>
-
-            <div>
-              <p className="text-xs font-medium mb-2">Logo Penyelenggara (Opsional)</p>
-              <div className="flex items-center gap-4">
-                <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl border border-border-soft bg-panel">
-                  {logoPreview ? (
-                    <Image
-                      src={logoPreview}
-                      alt="Logo preview"
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">
-                      Logo
-                    </div>
-                  )}
-                </div>
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-soft bg-panel px-4 py-2 text-xs font-medium text-foreground hover:bg-secondary-container transition-colors">
-                  <Upload className="size-3.5" /> Unggah Logo Baru
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                    onChange={handleLogoChange}
-                    className="sr-only"
-                  />
-                </label>
+        <Card className="rounded-card border border-border-soft p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <CardHeader className="p-0 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="grid size-7 place-items-center rounded-md bg-panel text-muted-foreground">
+                  <Shield className="size-3.5" />
+                </span>
+                <CardTitle className="text-base font-semibold">Identitas Penyelenggara</CardTitle>
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Format didukung: PNG, JPEG, WebP, SVG. Maksimal 5 MB.
-              </p>
-            </div>
-          </CardContent>
+              <CardDescription className="text-xs">
+                Nama dan logo yang ditampilkan pada surat suara bilik dan layar proyektor.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-3 p-0 pt-1">
+              <div className="grid gap-1.5">
+                <Label htmlFor="nama_penyelenggara" className="text-xs font-medium">
+                  Nama Penyelenggara / Organisasi
+                </Label>
+                <Input
+                  id="nama_penyelenggara"
+                  type="text"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  value={settings.nama_penyelenggara}
+                  onChange={(e) =>
+                    setSettings({ ...settings, nama_penyelenggara: e.target.value })
+                  }
+                  placeholder="Contoh: KPU Mahasiswa 2026"
+                  className="h-9 text-xs rounded-input bg-background"
+                />
+              </div>
+
+              <div>
+                <Label className="mb-1.5 block text-xs font-medium">Logo Penyelenggara (Opsional)</Label>
+                <div className="flex items-center gap-3">
+                  <div className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border-soft bg-panel">
+                    {logoPreview ? (
+                      <Image
+                        src={logoPreview}
+                        alt="Logo preview"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center text-[10px] text-muted-foreground">
+                        Logo
+                      </div>
+                    )}
+                  </div>
+                  <Label
+                    htmlFor="logo-file"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-border-soft bg-panel px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary-container"
+                  >
+                    <Upload className="size-3" /> Unggah Logo Baru
+                    <input
+                      id="logo-file"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                      onChange={handleLogoChange}
+                      className="sr-only"
+                    />
+                  </Label>
+                </div>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  Format didukung: PNG, JPEG, WebP, SVG. Maksimal 5 MB.
+                </p>
+              </div>
+            </CardContent>
+          </div>
         </Card>
 
         {/* Visibilitas & Tema */}
-        <Card className="rounded-[24px] border border-border-soft p-6 sm:p-8">
-          <CardHeader className="p-0 pb-6">
-            <span className="mb-3 grid size-10 place-items-center rounded-full bg-panel">
-              <Palette className="size-4 text-muted-foreground" />
-            </span>
-            <CardTitle>Tampilan & Visibilitas Publik</CardTitle>
-            <CardDescription className="text-xs">
-              Kontrol penayangan hasil live ke publik dan preferensi visual.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 space-y-6">
-            {/* Toggle Tampilkan Hasil Live */}
-            <div className="flex items-start justify-between gap-4 rounded-2xl border border-border-soft bg-panel/40 p-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 font-medium text-sm">
-                  {settings.tampilkan_hasil_live ? (
-                    <Eye className="size-4 text-emerald-600" />
-                  ) : (
-                    <EyeOff className="size-4 text-amber-500" />
-                  )}
-                  <span>Tampilkan Hasil Live ke Publik (/live)</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Bila dinonaktifkan, halaman proyektor publik (`/live`) menampilkan layar penahan informasi sehingga hasil suara tidak terlihat publik hingga diaktifkan kembali.
-                </p>
+        <Card className="rounded-card border border-border-soft p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <CardHeader className="p-0 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="grid size-7 place-items-center rounded-md bg-panel text-muted-foreground">
+                  <Palette className="size-3.5" />
+                </span>
+                <CardTitle className="text-base font-semibold">Tampilan & Visibilitas Publik</CardTitle>
               </div>
-              <label className="relative inline-flex cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.tampilkan_hasil_live}
-                  onChange={(e) =>
-                    setSettings({ ...settings, tampilkan_hasil_live: e.target.checked })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="h-6 w-11 rounded-full bg-border-soft peer-checked:bg-emerald-600 peer-focus:outline-none transition-colors after:absolute after:top-0.5 after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full" />
-              </label>
-            </div>
+              <CardDescription className="text-xs">
+                Kontrol penayangan hasil live ke publik dan preferensi visual antarmuka.
+              </CardDescription>
+            </CardHeader>
 
-            {/* Tema default */}
-            <label className="grid gap-1.5 text-xs font-medium">
-              Tema Antarmuka Bawaan
-              <select
-                value={settings.tema}
-                onChange={(e) =>
-                  setSettings({ ...settings, tema: e.target.value as typeof settings.tema })
-                }
-                className="rounded-input border border-border-soft bg-background p-3 text-sm"
-              >
-                <option value="system">Mengikuti Sistem Pengguna</option>
-                <option value="light">Terang (Light Mode)</option>
-                <option value="dark">Gelap (Dark Mode)</option>
-              </select>
-            </label>
-          </CardContent>
+            <CardContent className="space-y-3.5 p-0 pt-1">
+              {/* Toggle Tampilkan Hasil Live */}
+              <div className="flex items-start justify-between gap-3 rounded-md border border-border-soft bg-panel/30 p-3">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium">
+                    {settings.tampilkan_hasil_live ? (
+                      <Eye className="size-3.5 text-emerald-600" />
+                    ) : (
+                      <EyeOff className="size-3.5 text-amber-500" />
+                    )}
+                    <span>Tampilkan Hasil Live ke Publik (/live)</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Bila dinonaktifkan, halaman proyektor publik (`/live`) menampilkan layar siaga penahan informasi sehingga hasil suara tidak terlihat publik.
+                  </p>
+                </div>
+                <Switch
+                  checked={settings.tampilkan_hasil_live}
+                  onCheckedChange={(checked) =>
+                    setSettings({ ...settings, tampilkan_hasil_live: checked })
+                  }
+                />
+              </div>
+
+              {/* Tema default */}
+              <div className="grid gap-1.5">
+                <Label htmlFor="theme-select" className="text-xs font-medium">
+                  Tema Antarmuka Bawaan
+                </Label>
+                <select
+                  id="theme-select"
+                  value={settings.tema}
+                  onChange={(e) =>
+                    setSettings({ ...settings, tema: e.target.value as typeof settings.tema })
+                  }
+                  className={selectStyle}
+                >
+                  <option value="system">Mengikuti Sistem Pengguna</option>
+                  <option value="light">Terang (Light Mode)</option>
+                  <option value="dark">Gelap (Dark Mode)</option>
+                </select>
+              </div>
+            </CardContent>
+          </div>
         </Card>
 
         {/* Format Kode Unik Pemilih */}
-        <Card className="rounded-[24px] border border-border-soft p-6 sm:p-8 lg:col-span-2">
-          <CardHeader className="p-0 pb-6">
-            <span className="mb-3 grid size-10 place-items-center rounded-full bg-panel">
-              <KeyRound className="size-4 text-muted-foreground" />
-            </span>
-            <CardTitle>Format Kode Unik Sekali Pakai</CardTitle>
+        <Card className="rounded-card border border-border-soft p-4 sm:p-5 lg:col-span-2">
+          <CardHeader className="p-0 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-md bg-panel text-muted-foreground">
+                <KeyRound className="size-3.5" />
+              </span>
+              <CardTitle className="text-base font-semibold">Format Kode Unik Sekali Pakai</CardTitle>
+            </div>
             <CardDescription className="text-xs">
               Standar pembuatan kode unik otomatis saat penambahan atau impor pemilih DPT baru.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0 space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-xs font-medium">
-                Awalan Kode (Prefix)
-                <input
+
+          <CardContent className="space-y-4 p-0 pt-1">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="format_prefix" className="text-xs font-medium">
+                  Awalan Kode (Prefix)
+                </Label>
+                <Input
+                  id="format_prefix"
                   type="text"
                   required
                   value={settings.format_kode_prefix}
@@ -219,16 +242,19 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                     setSettings({ ...settings, format_kode_prefix: e.target.value.toUpperCase() })
                   }
                   placeholder="Contoh: PEMILU-"
-                  className="rounded-input border border-border-soft bg-background p-3 text-sm font-mono"
+                  className="h-9 rounded-input bg-background font-mono text-xs"
                 />
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-[10px] text-muted-foreground">
                   Gunakan huruf kapital, angka, atau tanda pisah (-).
                 </span>
-              </label>
+              </div>
 
-              <label className="grid gap-1.5 text-xs font-medium">
-                Panjang Karakter Acak
-                <input
+              <div className="grid gap-1.5">
+                <Label htmlFor="format_length" className="text-xs font-medium">
+                  Panjang Karakter Acak
+                </Label>
+                <Input
+                  id="format_length"
                   type="number"
                   required
                   min={4}
@@ -237,40 +263,37 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                   onChange={(e) =>
                     setSettings({ ...settings, format_kode_length: Number(e.target.value) })
                   }
-                  className="rounded-input border border-border-soft bg-background p-3 text-sm font-mono"
+                  className="h-9 rounded-input bg-background font-mono text-xs"
                 />
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-[10px] text-muted-foreground">
                   Antara 4 sampai 32 karakter acak (bebas dari huruf ambigu 0/O dan 1/I).
                 </span>
-              </label>
+              </div>
             </div>
 
             {/* Preview Sampel Kode */}
-            <div className="rounded-2xl border border-border-soft bg-panel/30 p-5">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                Pratinjau Kode Unik:
-              </p>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="rounded-xl border border-border-soft bg-background px-4 py-2 font-mono text-lg font-bold tracking-widest text-primary">
-                  {generateSampleCode(settings.format_kode_prefix, settings.format_kode_length)}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  (Panjang total: {settings.format_kode_prefix.length + settings.format_kode_length} karakter)
-                </span>
+            <div className="rounded-md border border-border-soft bg-panel/30 p-3.5 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Pratinjau Format Kode Unik DPT:
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="rounded-md border border-border-soft bg-background px-3 py-1 font-mono text-base font-bold tracking-widest text-primary">
+                    {generateSampleCode(settings.format_kode_prefix, settings.format_kode_length)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    ({settings.format_kode_prefix.length + settings.format_kode_length} karakter)
+                  </span>
+                </div>
               </div>
+              <Button type="submit" disabled={isPending} size="sm" className="h-8 gap-1.5 text-xs font-medium">
+                <Save className="size-3.5" />
+                <span>{isPending ? "Menyimpan…" : "Simpan Pengaturan"}</span>
+              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isPending} className="gap-2">
-          <Save className="size-4" />
-          {isPending ? "Menyimpan Pengaturan…" : "Simpan Semua Pengaturan"}
-        </Button>
-      </div>
     </form>
   );
 }
-

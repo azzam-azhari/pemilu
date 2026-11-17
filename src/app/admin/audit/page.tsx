@@ -38,17 +38,16 @@ export default async function AdminAuditPage({
   const elections = await getElectionsList();
 
   return (
-    <main className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10">
-      <div className="mb-8 print:hidden">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Audit Log & Ekspor
-        </p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Riwayat Sistem & Ekspor Laporan
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Semua aksi administratif, perubahan status, percobaan akses kode, dan transaksi voting tercatat di sini.
-        </p>
+    <main className="w-full min-w-0 flex-1 space-y-4 p-4 md:p-6">
+      <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center print:hidden">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Keamanan & Integritas
+          </p>
+          <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Audit Log & Ekspor Laporan
+          </h1>
+        </div>
       </div>
 
       <AuditTable
@@ -60,4 +59,3 @@ export default async function AdminAuditPage({
     </main>
   );
 }
-

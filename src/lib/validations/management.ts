@@ -9,5 +9,6 @@ export const managementSchema = z.object({
   selesai: z.string().refine(v=>v==="" || (/^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v))),"Tanggal tidak valid"),
   info: z.string().max(500),
   visi_misi: z.string().max(10000),
+  status: z.enum(["draft", "open", "closed"]).optional(),
 }).refine(v=>!v.mulai || !v.selesai || v.selesai>v.mulai,{message:"Tanggal selesai harus setelah mulai",path:["selesai"]});
 export type ManagementInput = z.infer<typeof managementSchema>;

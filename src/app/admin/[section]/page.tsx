@@ -18,5 +18,5 @@ export default async function AdminPlaceholderPage({ params }: { params: Promise
   const content = sections[section];
   if (!content) notFound();
 
-  return <main className="mx-auto grid min-h-[calc(100vh-72px)] max-w-[1440px] place-items-center px-6 py-12 sm:px-10"><Card className="w-full max-w-xl text-center"><CardHeader className="items-center"><span className="mb-4 grid size-11 place-items-center rounded-full bg-panel"><Construction className="size-5" /></span><CardTitle>{content.title}</CardTitle><CardDescription>{content.description}</CardDescription></CardHeader><CardContent className="pt-5 text-sm text-muted-foreground">Halaman ini telah dilindungi akses admin dan siap dikembangkan pada fase terkait.</CardContent></Card></main>;
+  return <main className="w-full min-w-0 flex-1 grid min-h-[calc(100vh-72px)] place-items-center p-4 md:p-6"><Card className="w-full max-w-xl text-center"><CardHeader className="items-center"><span className="mb-4 grid size-11 place-items-center rounded-full bg-panel"><Construction className="size-5" /></span><CardTitle>{content.title}</CardTitle><CardDescription>{content.description}</CardDescription></CardHeader><CardContent className="pt-5 text-sm text-muted-foreground">Halaman ini telah dilindungi akses admin dan siap dikembangkan pada fase terkait.</CardContent></Card></main>;
 }

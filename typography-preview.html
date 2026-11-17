@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview Tipografi Proyek Pemilu - 3 Pilihan Font</title>
+  
+  <!-- Google Fonts Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Imports: Plus Jakarta Sans, Lora, Merriweather, Inter, Space Grotesk, DM Sans, JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&family=JetBrains+Mono:wght@500;700&family=Lora:ital,wght@0,500;0,600;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS Variables matching src/app/globals.css */
+    :root {
+      --bg: #fafaf9;
+      --fg: #1c1917;
+      --muted: #57534e;
+      --muted-bg: #f5f5f4;
+      --card: #ffffff;
+      --border: #e7e5e4;
+      --primary: #1c1917;
+      --primary-fg: #fafaf9;
+      --accent: #e7e5e4;
+      --accent-fg: #1c1917;
+      --tag-bg: #f5f5f4;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --radius: 10px;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0c0a09;
+      --fg: #fafaf9;
+      --muted: #a8a29e;
+      --muted-bg: #1c1917;
+      --card: #141210;
+      --border: #292524;
+      --primary: #fafaf9;
+      --primary-fg: #1c1917;
+      --accent: #292524;
+      --accent-fg: #fafaf9;
+      --tag-bg: #292524;
+      --success: #4ade80;
+      --success-bg: #052e16;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.5;
+      padding-bottom: 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Option Typography Font Classes */
+    /* Opsi 1: Modern Civic & Trust */
+    .typo-opt1 {
+      --font-heading: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    .typo-opt1 .font-heading { font-family: var(--font-heading); }
+    .typo-opt1 .font-body { font-family: var(--font-body); }
+    .typo-opt1 .font-mono { font-family: var(--font-mono); }
+
+    /* Opsi 2: Editorial & Dignified Authority */
+    .typo-opt2 {
+      --font-heading: 'Lora', 'Merriweather', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    .typo-opt2 .font-heading { font-family: var(--font-heading); }
+    .typo-opt2 .font-body { font-family: var(--font-body); }
+    .typo-opt2 .font-mono { font-family: var(--font-mono); }
+
+    /* Opsi 3: High-Tech & Precision Democracy */
+    .typo-opt3 {
+      --font-heading: 'Space Grotesk', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    .typo-opt3 .font-heading { font-family: var(--font-heading); }
+    .typo-opt3 .font-body { font-family: var(--font-body); }
+    .typo-opt3 .font-mono { font-family: var(--font-mono); }
+
+    /* Layout Containers */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Top Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: var(--primary);
+      color: var(--primary-fg);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      outline: none;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-outline {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--fg);
+    }
+    .btn-outline:hover {
+      background: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-fg);
+      border-color: var(--primary);
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* Mode Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      background: var(--muted-bg);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      gap: 4px;
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--card);
+      color: var(--fg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 40px 0 24px 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 720px;
+      margin: 0 auto 24px auto;
+    }
+
+    /* Live Interactive Sandbox Tester */
+    .sandbox-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .sandbox-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sandbox-input {
+      width: 100%;
+      background: var(--muted-bg);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    .sandbox-input:focus {
+      outline: 2px solid var(--primary);
+    }
+
+    /* Option Header Card */
+    .option-card-header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .option-title-area h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-opt {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .font-stack-info {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .font-pill {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 12px;
+      background: var(--tag-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--fg);
+    }
+
+    /* Grid Layouts */
+    .grid-specimen {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-specimen {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    /* Typographic Hierarchy Items */
+    .specimen-row {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .specimen-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .specimen-tag {
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* Real Pemilu UI Components */
+    .candidate-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .candidate-badge-no {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .candidate-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .candidate-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .candidate-quote {
+      font-size: 14px;
+      font-style: italic;
+      color: var(--muted);
+      padding-left: 12px;
+      border-left: 3px solid var(--primary);
+      margin-bottom: 16px;
+    }
+
+    /* Quick Count Stats */
+    .stats-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+      width: 58.4%;
+    }
+
+    /* Modal for Code Export */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .code-block {
+      background: #18181b;
+      color: #f4f4f5;
+      padding: 16px;
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .copy-btn-inline {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      color: #fafafa;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .copy-btn-inline:hover {
+      background: #3f3f46;
+    }
+
+    /* Side-by-Side Comparison Grid */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-badge">PEMILU</span>
+          <span class="brand-title">Katalog & Preview Tipografi</span>
+        </div>
+
+        <!-- Controls: View switch & Dark mode -->
+        <div class="header-controls">
+          <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchView('tab1')">Opsi 1: Civic Trust</button>
+            <button class="tab-btn" onclick="switchView('tab2')">Opsi 2: Editorial Authority</button>
+            <button class="tab-btn" onclick="switchView('tab3')">Opsi 3: High-Tech</button>
+            <button class="tab-btn" onclick="switchView('compare')">⚡ Bandingkan 3 Kolom</button>
+          </div>
+
+          <button class="btn btn-outline" id="themeToggleBtn" onclick="toggleTheme()" title="Ganti Tema">
+            <span id="themeIcon">🌙</span> <span id="themeText">Dark</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container" style="margin-top: 24px;">
+
+    <!-- Hero Introduction -->
+    <section class="hero">
+      <h1>Eksplorasi Tipografi Pemilihan Ketua</h1>
+      <p>Pilih kombinasi font yang paling sesuai dengan visi, wibawa, dan estetika sistem pemilihan. Anda dapat mengetik teks uji di bawah ini untuk melihat perubahannya secara *live*.</p>
+    </section>
+
+    <!-- Live Interactive Text Sandbox -->
+    <div class="sandbox-box">
+      <div class="sandbox-label">
+        <span>Ketik Teks Uji Kustom (Live Tester)</span>
+        <span style="font-weight: 400; text-transform: none;">Contoh: "Pemilihan Ketua Umum Periode 2026-2027"</span>
+      </div>
+      <input 
+        type="text" 
+        id="liveInput" 
+        class="sandbox-input" 
+        value="Pemilihan Ketua & Wakil Ketua Umum 2026: Terbuka, Transparan, dan Akuntabel" 
+        placeholder="Ketik judul atau teks di sini untuk melihat rendering font..."
+        oninput="updateLiveText(this.value)"
+      />
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- VIEW: TAB 1 (Opsi 1: Modern Civic & Trust) -->
+    <!-- ======================================================== -->
+    <div id="view-tab1" class="typo-opt1 view-section">
+      <div class="option-card-header">
+        <div class="option-title-area">
+          <h2 class="font-heading">
+            Opsi 1: Modern Civic & Trust 
+            <span class="badge-opt">Rekomendasi Utama</span>
+          </h2>
+          <div class="font-stack-info">
+            Kombinasi: Heading <span class="font-pill">Plus Jakarta Sans (600/700/800)</span> + Body <span class="font-pill">Plus Jakarta Sans (400/500)</span>
+          </div>
+          <p style="margin-top: 8px; font-size: 14px; color: var(--muted); max-width: 750px;">
+            Karakteristik: Geometris, bersahabat, sangat modern, dan menjadi standar desain institusional kontemporer di Indonesia. Memberikan rasa percaya diri, ramah bagi pemilih muda, dan sangat nyaman dibaca di layar HP maupun desktop.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="openExportModal('opt1')">
+            Pilih Opsi 1 & Salin Kode
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-specimen">
+        <!-- Kolom Kiri: Hirarki Teks -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Spesimen Hirarki Tipografi</span>
+            <span class="specimen-tag font-mono">Font: Plus Jakarta Sans</span>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HERO / DISPLAY (800 Extrabold - 36px)</span>
+            <h1 class="font-heading live-target-title" style="font-size: 34px; font-weight: 800; line-height: 1.2;">
+              Pemilihan Ketua & Wakil Ketua Umum 2026
+            </h1>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HEADING 1 (700 Bold - 26px)</span>
+            <h2 class="font-heading" style="font-size: 26px; font-weight: 700; line-height: 1.3;">
+              Daftar Pasangan Calon & Visi Misi
+            </h2>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HEADING 2 (600 SemiBold - 20px)</span>
+            <h3 class="font-heading" style="font-size: 20px; font-weight: 600;">
+              Jadwal Pemungutan & Perhitungan Suara
+            </h3>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">BODY TEXT REGULAR (400 - 15px) & MEDIUM (500)</span>
+            <p class="font-body" style="font-size: 15px; font-weight: 400; color: var(--fg); margin-bottom: 8px;">
+              Gunakan hak pilih Anda secara bebas, rahasia, jujur, dan adil. Setiap suara yang masuk dienkripsi secara digital dan diverifikasi langsung oleh saksi independen demi integritas hasil pemilihan.
+            </p>
+            <p class="font-body" style="font-size: 15px; font-weight: 500; color: var(--muted);">
+              Teks Medium: Masa tenang dimulai pada tanggal 20 November 2026 pukul 00:00 WIB.
+            </p>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">BODY BOLD (700) & TABULAR DATA NUMBERS</span>
+            <p class="font-body" style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">
+              Peringatan: Verifikasi e-KTP atau identitas mahasiswa bersifat wajib sebelum memasuki bilik suara digital.
+            </p>
+            <div class="font-mono" style="font-size: 14px; background: var(--muted-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+              TPS-042 • Total DPT: 2.450 • Surat Suara Terpakai: 1.890 (77.14%)
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Simulasi Komponen UI Nyata -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Simulasi Komponen UI Pemilu</span>
+            <span class="specimen-tag font-mono">Live Components</span>
+          </div>
+
+          <!-- Paslon Card -->
+          <div class="candidate-card">
+            <div class="candidate-badge-no font-heading">01</div>
+            <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;" class="font-heading">
+                AP
+              </div>
+              <div>
+                <h4 class="candidate-name font-heading">Ahmad Pratama & Siti Nurhaliza</h4>
+                <div class="candidate-meta font-body">Fakultas Teknik & Ilmu Komunikasi</div>
+              </div>
+            </div>
+            <p class="candidate-quote font-body">
+              "Mewujudkan organisasi yang transparan, progresif, dan berorientasi pada pemberdayaan aspirasi mahasiswa secara inklusif."
+            </p>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-primary btn-sm font-heading">Beri Suara Paslon 01</button>
+              <button class="btn btn-outline btn-sm font-body">Lihat Rekam Jejak</button>
+            </div>
+          </div>
+
+          <!-- Quick Count Card -->
+          <div class="stats-card">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div>
+                <div class="stat-number font-heading">58.42%</div>
+                <div class="stat-label font-body">Perolehan Suara Sementara (Quick Count)</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="font-mono" style="font-weight: 700; font-size: 16px;">14.210 Suara</div>
+                <div class="stat-label font-body">Data Masuk: 82.5%</div>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <!-- Alert / Info Box -->
+          <div style="background: var(--muted-bg); border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 6px;">
+            <div class="font-heading" style="font-size: 13px; font-weight: 700; margin-bottom: 2px;">Tata Tertib Pemilihan Elektronik</div>
+            <p class="font-body" style="font-size: 13px; color: var(--muted);">
+              Sistem mencatat bukti hash cryptographic pada setiap transaksi suara untuk menjamin tidak ada manipulasi data.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- VIEW: TAB 2 (Opsi 2: Editorial & Dignified Authority) -->
+    <!-- ======================================================== -->
+    <div id="view-tab2" class="typo-opt2 view-section" style="display: none;">
+      <div class="option-card-header">
+        <div class="option-title-area">
+          <h2 class="font-heading">
+            Opsi 2: Editorial & Dignified Authority 
+            <span class="badge-opt">Formal & Konstitusional</span>
+          </h2>
+          <div class="font-stack-info">
+            Kombinasi: Heading <span class="font-pill">Lora / Merriweather Serif (600/700)</span> + Body <span class="font-pill">Inter Sans (400/500/600)</span>
+          </div>
+          <p style="margin-top: 8px; font-size: 14px; color: var(--muted); max-width: 750px;">
+            Karakteristik: Menggabungkan keanggunan font Serif berwibawa untuk judul dengan ketajaman sans-serif Inter untuk teks antarmuka. Mencerminkan nuansa ketatanegaraan, piagam resmi, integritas akademis tinggi, dan legitimasi konstitusi.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="openExportModal('opt2')">
+            Pilih Opsi 2 & Salin Kode
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-specimen">
+        <!-- Kolom Kiri: Hirarki Teks -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Spesimen Hirarki Tipografi</span>
+            <span class="specimen-tag font-mono">Font: Lora (Serif) + Inter</span>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HERO / DISPLAY (Serif 700 Bold - 34px)</span>
+            <h1 class="font-heading live-target-title" style="font-size: 34px; font-weight: 700; line-height: 1.25;">
+              Pemilihan Ketua & Wakil Ketua Umum 2026
+            </h1>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HEADING 1 (Serif 600 SemiBold - 26px)</span>
+            <h2 class="font-heading" style="font-size: 26px; font-weight: 600; line-height: 1.3;">
+              Daftar Pasangan Calon & Visi Misi
+            </h2>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HEADING 2 (Serif 600 - 20px)</span>
+            <h3 class="font-heading" style="font-size: 20px; font-weight: 600;">
+              Jadwal Pemungutan & Perhitungan Suara
+            </h3>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">BODY TEXT REGULAR (Inter 400 - 15px) & MEDIUM (500)</span>
+            <p class="font-body" style="font-size: 15px; font-weight: 400; color: var(--fg); margin-bottom: 8px;">
+              Gunakan hak pilih Anda secara bebas, rahasia, jujur, dan adil. Setiap suara yang masuk dienkripsi secara digital dan diverifikasi langsung oleh saksi independen demi integritas hasil pemilihan.
+            </p>
+            <p class="font-body" style="font-size: 15px; font-weight: 500; color: var(--muted);">
+              Teks Medium: Masa tenang dimulai pada tanggal 20 November 2026 pukul 00:00 WIB.
+            </p>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">BODY BOLD (Inter 700) & TABULAR DATA NUMBERS</span>
+            <p class="font-body" style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">
+              Peringatan: Verifikasi e-KTP atau identitas mahasiswa bersifat wajib sebelum memasuki bilik suara digital.
+            </p>
+            <div class="font-mono" style="font-size: 14px; background: var(--muted-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+              TPS-042 • Total DPT: 2.450 • Surat Suara Terpakai: 1.890 (77.14%)
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Simulasi Komponen UI Nyata -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Simulasi Komponen UI Pemilu</span>
+            <span class="specimen-tag font-mono">Live Components</span>
+          </div>
+
+          <!-- Paslon Card -->
+          <div class="candidate-card">
+            <div class="candidate-badge-no font-heading">01</div>
+            <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;" class="font-heading">
+                AP
+              </div>
+              <div>
+                <h4 class="candidate-name font-heading" style="font-size: 19px;">Ahmad Pratama & Siti Nurhaliza</h4>
+                <div class="candidate-meta font-body">Fakultas Teknik & Ilmu Komunikasi</div>
+              </div>
+            </div>
+            <p class="candidate-quote font-body">
+              "Mewujudkan organisasi yang transparan, progresif, dan berorientasi pada pemberdayaan aspirasi mahasiswa secara inklusif."
+            </p>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-primary btn-sm font-body">Beri Suara Paslon 01</button>
+              <button class="btn btn-outline btn-sm font-body">Lihat Rekam Jejak</button>
+            </div>
+          </div>
+
+          <!-- Quick Count Card -->
+          <div class="stats-card">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div>
+                <div class="stat-number font-heading">58.42%</div>
+                <div class="stat-label font-body">Perolehan Suara Sementara (Quick Count)</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="font-mono" style="font-weight: 700; font-size: 16px;">14.210 Suara</div>
+                <div class="stat-label font-body">Data Masuk: 82.5%</div>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <!-- Alert / Info Box -->
+          <div style="background: var(--muted-bg); border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 6px;">
+            <div class="font-heading" style="font-size: 14px; font-weight: 700; margin-bottom: 2px;">Tata Tertib Pemilihan Elektronik</div>
+            <p class="font-body" style="font-size: 13px; color: var(--muted);">
+              Sistem mencatat bukti hash cryptographic pada setiap transaksi suara untuk menjamin tidak ada manipulasi data.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- VIEW: TAB 3 (Opsi 3: High-Tech & Precision Democracy) -->
+    <!-- ======================================================== -->
+    <div id="view-tab3" class="typo-opt3 view-section" style="display: none;">
+      <div class="option-card-header">
+        <div class="option-title-area">
+          <h2 class="font-heading">
+            Opsi 3: High-Tech & Precision Democracy 
+            <span class="badge-opt">Tech-Forward & Data Centric</span>
+          </h2>
+          <div class="font-stack-info">
+            Kombinasi: Heading <span class="font-pill">Space Grotesk (600/700)</span> + Body <span class="font-pill">DM Sans (400/500/700)</span> + Accents <span class="font-pill">JetBrains Mono</span>
+          </div>
+          <p style="margin-top: 8px; font-size: 14px; color: var(--muted); max-width: 750px;">
+            Karakteristik: Sangat arsitektural, futuristik, tajam, dan berorientasi data/dashboard. Sangat cocok jika sistem pemilihan ini ingin menonjolkan kecanggihan e-voting modern, transparansi cryptographic, dan dashboard metrik suara real-time.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="openExportModal('opt3')">
+            Pilih Opsi 3 & Salin Kode
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-specimen">
+        <!-- Kolom Kiri: Hirarki Teks -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Spesimen Hirarki Tipografi</span>
+            <span class="specimen-tag font-mono">Font: Space Grotesk + DM Sans</span>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HERO / DISPLAY (Space Grotesk 700 - 34px)</span>
+            <h1 class="font-heading live-target-title" style="font-size: 34px; font-weight: 700; line-height: 1.2; letter-spacing: -0.5px;">
+              Pemilihan Ketua & Wakil Ketua Umum 2026
+            </h1>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HEADING 1 (Space Grotesk 600 - 26px)</span>
+            <h2 class="font-heading" style="font-size: 26px; font-weight: 600; line-height: 1.3;">
+              Daftar Pasangan Calon & Visi Misi
+            </h2>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">HEADING 2 (Space Grotesk 600 - 20px)</span>
+            <h3 class="font-heading" style="font-size: 20px; font-weight: 600;">
+              Jadwal Pemungutan & Perhitungan Suara
+            </h3>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">BODY TEXT REGULAR (DM Sans 400 - 15px) & MEDIUM (500)</span>
+            <p class="font-body" style="font-size: 15px; font-weight: 400; color: var(--fg); margin-bottom: 8px;">
+              Gunakan hak pilih Anda secara bebas, rahasia, jujur, dan adil. Setiap suara yang masuk dienkripsi secara digital dan diverifikasi langsung oleh saksi independen demi integritas hasil pemilihan.
+            </p>
+            <p class="font-body" style="font-size: 15px; font-weight: 500; color: var(--muted);">
+              Teks Medium: Masa tenang dimulai pada tanggal 20 November 2026 pukul 00:00 WIB.
+            </p>
+          </div>
+
+          <div class="specimen-row">
+            <span class="specimen-tag">BODY BOLD (DM Sans 700) & TABULAR DATA NUMBERS</span>
+            <p class="font-body" style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">
+              Peringatan: Verifikasi e-KTP atau identitas mahasiswa bersifat wajib sebelum memasuki bilik suara digital.
+            </p>
+            <div class="font-mono" style="font-size: 14px; background: var(--muted-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+              TPS-042 • Total DPT: 2.450 • Surat Suara Terpakai: 1.890 (77.14%)
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Simulasi Komponen UI Nyata -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Simulasi Komponen UI Pemilu</span>
+            <span class="specimen-tag font-mono">Live Components</span>
+          </div>
+
+          <!-- Paslon Card -->
+          <div class="candidate-card">
+            <div class="candidate-badge-no font-heading" style="border-radius: 8px;">01</div>
+            <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;" class="font-heading">
+                AP
+              </div>
+              <div>
+                <h4 class="candidate-name font-heading" style="letter-spacing: -0.3px;">Ahmad Pratama & Siti Nurhaliza</h4>
+                <div class="candidate-meta font-body">Fakultas Teknik & Ilmu Komunikasi</div>
+              </div>
+            </div>
+            <p class="candidate-quote font-body">
+              "Mewujudkan organisasi yang transparan, progresif, dan berorientasi pada pemberdayaan aspirasi mahasiswa secara inklusif."
+            </p>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-primary btn-sm font-heading">Beri Suara Paslon 01</button>
+              <button class="btn btn-outline btn-sm font-body">Lihat Rekam Jejak</button>
+            </div>
+          </div>
+
+          <!-- Quick Count Card -->
+          <div class="stats-card">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div>
+                <div class="stat-number font-heading" style="letter-spacing: -1px;">58.42%</div>
+                <div class="stat-label font-body">Perolehan Suara Sementara (Quick Count)</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="font-mono" style="font-weight: 700; font-size: 16px;">14.210 Suara</div>
+                <div class="stat-label font-body">Data Masuk: 82.5%</div>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <!-- Alert / Info Box -->
+          <div style="background: var(--muted-bg); border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 6px;">
+            <div class="font-heading" style="font-size: 13px; font-weight: 700; margin-bottom: 2px;">Tata Tertib Pemilihan Elektronik</div>
+            <p class="font-body" style="font-size: 13px; color: var(--muted);">
+              Sistem mencatat bukti hash cryptographic pada setiap transaksi suara untuk menjamin tidak ada manipulasi data.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- VIEW: SIDE-BY-SIDE COMPARISON (3 KOLOM) -->
+    <!-- ======================================================== -->
+    <div id="view-compare" class="view-section" style="display: none;">
+      <div class="option-card-header" style="margin-bottom: 24px;">
+        <div>
+          <h2>Mode Perbandingan Berdampingan (Side-by-Side)</h2>
+          <p style="color: var(--muted); font-size: 14px;">Bandingkan secara objektif karakter visual ketiga font dengan teks yang persis sama.</p>
+        </div>
+      </div>
+
+      <div class="comparison-grid">
+        <!-- Kolom Opsi 1 -->
+        <div class="panel typo-opt1">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span class="badge-opt">Opsi 1: Civic Trust</span>
+            <button class="btn btn-outline btn-sm" onclick="openExportModal('opt1')">Pilih Opsi 1</button>
+          </div>
+          <div class="specimen-tag font-mono">Plus Jakarta Sans</div>
+          
+          <h2 class="font-heading live-target-title" style="font-size: 24px; font-weight: 800; line-height: 1.25; margin: 12px 0;">
+            Pemilihan Ketua & Wakil Ketua Umum 2026
+          </h2>
+          <h3 class="font-heading" style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">
+            Kandidat 01: Ahmad Pratama & Siti Nurhaliza
+          </h3>
+          <p class="font-body" style="font-size: 14px; color: var(--muted); margin-bottom: 14px;">
+            Memberikan rasa percaya diri, ramah bagi seluruh kalangan pemilih, dan sangat nyaman dibaca untuk aplikasi modern masa kini.
+          </p>
+
+          <div class="stats-card">
+            <div class="stat-number font-heading" style="font-size: 28px;">58.4%</div>
+            <div class="stat-label font-body">Perolehan Suara</div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm font-heading" style="width: 100%;">Beri Suara</button>
+            <button class="btn btn-outline btn-sm font-body">Detail</button>
+          </div>
+        </div>
+
+        <!-- Kolom Opsi 2 -->
+        <div class="panel typo-opt2">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span class="badge-opt">Opsi 2: Editorial</span>
+            <button class="btn btn-outline btn-sm" onclick="openExportModal('opt2')">Pilih Opsi 2</button>
+          </div>
+          <div class="specimen-tag font-mono">Lora Serif + Inter</div>
+
+          <h2 class="font-heading live-target-title" style="font-size: 24px; font-weight: 700; line-height: 1.25; margin: 12px 0;">
+            Pemilihan Ketua & Wakil Ketua Umum 2026
+          </h2>
+          <h3 class="font-heading" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+            Kandidat 01: Ahmad Pratama & Siti Nurhaliza
+          </h3>
+          <p class="font-body" style="font-size: 14px; color: var(--muted); margin-bottom: 14px;">
+            Nuansa wibawa kenegaraan yang formal, anggun, mencerminkan keseriusan institusional dan piagam pemilihan resmi.
+          </p>
+
+          <div class="stats-card">
+            <div class="stat-number font-heading" style="font-size: 28px;">58.4%</div>
+            <div class="stat-label font-body">Perolehan Suara</div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm font-body" style="width: 100%;">Beri Suara</button>
+            <button class="btn btn-outline btn-sm font-body">Detail</button>
+          </div>
+        </div>
+
+        <!-- Kolom Opsi 3 -->
+        <div class="panel typo-opt3">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span class="badge-opt">Opsi 3: High-Tech</span>
+            <button class="btn btn-outline btn-sm" onclick="openExportModal('opt3')">Pilih Opsi 3</button>
+          </div>
+          <div class="specimen-tag font-mono">Space Grotesk + DM Sans</div>
+
+          <h2 class="font-heading live-target-title" style="font-size: 24px; font-weight: 700; line-height: 1.25; letter-spacing: -0.4px; margin: 12px 0;">
+            Pemilihan Ketua & Wakil Ketua Umum 2026
+          </h2>
+          <h3 class="font-heading" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+            Kandidat 01: Ahmad Pratama & Siti Nurhaliza
+          </h3>
+          <p class="font-body" style="font-size: 14px; color: var(--muted); margin-bottom: 14px;">
+            Gaya digital futuristik dengan presisi tinggi, mengedepankan analitik suara, transparansi real-time, dan dashboard modern.
+          </p>
+
+          <div class="stats-card">
+            <div class="stat-number font-heading" style="font-size: 28px; letter-spacing: -1px;">58.4%</div>
+            <div class="stat-label font-body">Perolehan Suara</div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm font-heading" style="width: 100%;">Beri Suara</button>
+            <button class="btn btn-outline btn-sm font-body">Detail</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Code Export -->
+  <div id="exportModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalTitle" style="font-size: 20px; font-weight: 700;">Panduan Penerapan Font</h3>
+          <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">Salin konfigurasi ini ke file Next.js & Tailwind CSS proyek Pemilu Anda.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="closeExportModal()">✕ Tutup</button>
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase;">
+          Langkah 1: Perbarui <code>src/app/layout.tsx</code>
+        </label>
+        <div class="code-block">
+          <button class="copy-btn-inline" onclick="copySnippet('codeLayout')">Salin Kode</button>
+          <pre id="codeLayout"></pre>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase;">
+          Langkah 2: Perbarui <code>src/app/globals.css</code> (@theme block)
+        </label>
+        <div class="code-block">
+          <button class="copy-btn-inline" onclick="copySnippet('codeCss')">Salin Kode</button>
+          <pre id="codeCss"></pre>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; text-align: right;">
+        <button class="btn btn-primary" onclick="closeExportModal()">Selesai & Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Element -->
+  <div id="toast" class="toast">
+    <span>✓</span> <span id="toastMsg">Teks berhasil disalin ke clipboard!</span>
+  </div>
+
+  <script>
+    // Tab Switching
+    function switchView(viewId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(viewId));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+      const target = document.getElementById('view-' + viewId);
+      if (target) {
+        target.style.display = 'block';
+      }
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      
+      const icon = document.getElementById('themeIcon');
+      const text = document.getElementById('themeText');
+      if (next === 'dark') {
+        icon.textContent = '☀️';
+        text.textContent = 'Light';
+      } else {
+        icon.textContent = '🌙';
+        text.textContent = 'Dark';
+      }
+    }
+
+    // Live Text Synchronizer
+    function updateLiveText(val) {
+      const targets = document.querySelectorAll('.live-target-title');
+      targets.forEach(t => {
+        t.textContent = val.trim() ? val : "Pemilihan Ketua & Wakil Ketua Umum 2026";
+      });
+    }
+
+    // Code Snippets Data
+    const snippetData = {
+      opt1: {
+        title: "Penerapan Opsi 1: Plus Jakarta Sans",
+        layout: `// src/app/layout.tsx
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="id" suppressHydrationWarning>
+      <body className={\`\${plusJakartaSans.variable} antialiased\`}>
+        {children}
+      </body>
+    </html>
+  );
+}`,
+        css: `/* src/app/globals.css */
+@theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  /* ... sisa konfigurasi warna tetap sama */
+}`
+      },
+      opt2: {
+        title: "Penerapan Opsi 2: Lora (Heading) + Inter (Body)",
+        layout: `// src/app/layout.tsx
+import { Lora, Inter } from "next/font/google";
+
+const lora = Lora({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+const inter = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="id" suppressHydrationWarning>
+      <body className={\`\${inter.variable} \${lora.variable} antialiased\`}>
+        {children}
+      </body>
+    </html>
+  );
+}`,
+        css: `/* src/app/globals.css */
+@theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-serif), Georgia, serif;
+  /* ... sisa konfigurasi warna tetap sama */
+}`
+      },
+      opt3: {
+        title: "Penerapan Opsi 3: Space Grotesk (Heading) + DM Sans (Body)",
+        layout: `// src/app/layout.tsx
+import { Space_Grotesk, DM_Sans, JetBrains_Mono } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-heading",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["500", "700"],
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="id" suppressHydrationWarning>
+      <body className={\`\${dmSans.variable} \${spaceGrotesk.variable} \${jetbrainsMono.variable} antialiased\`}>
+        {children}
+      </body>
+    </html>
+  );
+}`,
+        css: `/* src/app/globals.css */
+@theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-heading), sans-serif;
+  --font-mono: var(--font-mono), monospace;
+  /* ... sisa konfigurasi warna tetap sama */
+}`
+      }
+    };
+
+    function openExportModal(optKey) {
+      const data = snippetData[optKey];
+      document.getElementById('modalTitle').textContent = data.title;
+      document.getElementById('codeLayout').textContent = data.layout;
+      document.getElementById('codeCss').textContent = data.css;
+      document.getElementById('exportModal').classList.add('open');
+    }
+
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('open');
+    }
+
+    function copySnippet(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Kode berhasil disalin ke clipboard!");
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => {
+        t.classList.remove('show');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

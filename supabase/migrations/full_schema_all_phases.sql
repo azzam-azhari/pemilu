@@ -419,7 +419,6 @@ begin
     return old;
   end if;
   if new.status<>old.status then
-    if not ((old.status='draft' and new.status='open') or (old.status='open' and new.status='closed')) then raise exception 'Urutan status harus Draft → Open → Closed'; end if;
     if new.status='open' and (not exists(select 1 from public.positions where election_id=new.id) or exists(select 1 from public.positions p where p.election_id=new.id and not exists(select 1 from public.candidates c where c.position_id=p.id))) then raise exception 'Isi jabatan dan kandidat sebelum membuka pemilu'; end if;
   end if;
   return new;

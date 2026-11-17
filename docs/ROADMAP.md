@@ -44,10 +44,10 @@ Rencana pembangunan bertahap dengan prompt singkat untuk agent Codex.
 
 **Tujuan:** proyek siap dikembangkan dengan tema dan struktur folder.
 
-- [ ] Rapikan dependency (`cn` diganti `clsx` + `tailwind-merge`, cek paket Tailwind untuk Next)
-- [ ] Tema Tailwind v4 dari `design-system.md` §9, font Inter, `next-themes`
-- [ ] Init shadcn, override `Button` pil dan `Card` 24px
-- [ ] Struktur folder, helper Supabase (client/server), `.env.example`
+- [x] Rapikan dependency (`cn` diganti `clsx` + `tailwind-merge`, cek paket Tailwind untuk Next)
+- [x] Tema Tailwind v4 dari `design-system.md` §9, font Inter, `next-themes`
+- [x] Init shadcn, override `Button` pil dan `Card` 24px
+- [x] Struktur folder, helper Supabase (client/server), `.env.example`
 
 **Selesai bila:** `npm run dev` jalan, halaman contoh tampil sesuai tema terang/gelap.
 
@@ -66,11 +66,11 @@ Buat satu halaman demo komponen untuk cek tema.
 
 **Tujuan:** skema, RLS, dan fungsi voting atomik.
 
-- [ ] Migrasi semua tabel PRD §5
-- [ ] Constraint unik `voters.kode_unik`
-- [ ] RLS aktif; `votes` tidak bisa dibaca publik
-- [ ] RPC `verify_code` dan `cast_vote` (transaksi atomik, catat audit)
-- [ ] Seed data contoh (1 pemilu, 2 jabatan, 3 kandidat tiap jabatan, 20 pemilih)
+- [x] Migrasi semua tabel PRD §5
+- [x] Constraint unik `voters.kode_unik`
+- [x] RLS aktif; `votes` tidak bisa dibaca publik
+- [x] RPC `verify_code` dan `cast_vote` (transaksi atomik, catat audit)
+- [x] Seed data contoh (1 pemilu, 2 jabatan, 3 kandidat tiap jabatan, 20 pemilih)
 
 **Selesai bila:** dua panggilan `cast_vote` bersamaan dengan kode sama → hanya satu berhasil.
 
@@ -88,10 +88,10 @@ Tambah seed data dan tes SQL untuk skenario kode ganda/bersamaan.
 
 **Tujuan:** hanya admin yang bisa masuk; layout dashboard siap.
 
-- [ ] Halaman login (Supabase Auth), logout
-- [ ] Proteksi `/admin/*` lewat middleware/proxy + cek tabel `admins`
-- [ ] Layout: sidebar kaca 8 menu, header 72px, toggle tema
-- [ ] Halaman Dashboard: kartu statistik (DPT, sudah/belum memilih, partisipasi), status pemilu
+- [x] Halaman login (Supabase Auth), logout
+- [x] Proteksi `/admin/*` lewat middleware/proxy + cek tabel `admins`
+- [x] Layout: sidebar kaca 8 menu, header 72px, toggle tema
+- [x] Halaman Dashboard: kartu statistik (DPT, sudah/belum memilih, partisipasi), status pemilu
 
 **Selesai bila:** akses `/admin` tanpa login diarahkan ke login; login gagal tercatat di audit.
 
@@ -110,10 +110,10 @@ Menu lain cukup placeholder.
 
 **Tujuan:** admin bisa menyiapkan pemilu.
 
-- [ ] CRUD pemilu: nama, periode, status Draft → Open → Closed
-- [ ] CRUD jabatan, urutkan dengan drag & drop
-- [ ] CRUD kandidat: nomor urut, nama, foto (Storage), info, visi-misi
-- [ ] Aturan: pemilu Open tidak bisa ubah kandidat
+- [x] CRUD pemilu: nama, periode, status Draft → Open → Closed
+- [x] CRUD jabatan, urutkan dengan drag & drop
+- [x] CRUD kandidat: nomor urut, nama, foto (Storage), info, visi-misi
+- [x] Aturan: pemilu Open tidak bisa ubah kandidat
 
 **Selesai bila:** satu pemilu lengkap (jabatan + kandidat + foto) bisa dibuat dari UI.
 
@@ -131,11 +131,11 @@ Blokir ubah kandidat/jabatan saat pemilu Open. Semua aksi lewat Server Action da
 
 **Tujuan:** daftar pemilih dan kodenya siap dipakai.
 
-- [ ] Tabel DPT (TanStack Table): cari, filter, sortir, paginasi, filter di URL (nuqs)
-- [ ] Tambah/edit/hapus pemilih, impor CSV
-- [ ] Generate kode unik acak (panjang & format dari pengaturan), cegah duplikat
-- [ ] Aksi *Reset* hak pilih (konfirmasi + audit)
-- [ ] Ekspor daftar kode (CSV) untuk dicetak
+- [x] Tabel DPT (TanStack Table): cari, filter, sortir, paginasi, filter di URL (nuqs)
+- [x] Tambah/edit/hapus pemilih, impor CSV
+- [x] Generate kode unik acak (panjang & format dari pengaturan), cegah duplikat
+- [x] Aksi *Reset* hak pilih (konfirmasi + audit)
+- [x] Ekspor daftar kode (CSV) untuk dicetak
 
 **Selesai bila:** impor 1.000 baris CSV berhasil dengan kode unik semua.
 
@@ -153,12 +153,12 @@ Aksi Reset hak pilih dengan dialog konfirmasi dan catat ke audit_logs. Tampilkan
 
 **Tujuan:** alur voting lengkap dan aman.
 
-- [ ] `/bilik`: input kode → validasi (salah / sudah dipakai / pemilu tidak Open)
-- [ ] Halaman pemilihan: kartu kandidat per jabatan, bar status progres
-- [ ] Modal konfirmasi → simpan lewat `cast_vote` → pesan sukses → **otomatis kembali ke input kode (3–5 detik)**
-- [ ] Modal "Hak Suara Sudah Digunakan" + audit
-- [ ] Sesi pemilih berupa token server singkat (httpOnly), habis otomatis jika idle
-- [ ] Rate limit percobaan kode, mode layar penuh, nama bilik
+- [x] `/bilik`: input kode → validasi (salah / sudah dipakai / pemilu tidak Open)
+- [x] Halaman pemilihan: kartu kandidat per jabatan, bar status progres
+- [x] Modal konfirmasi → simpan lewat `cast_vote` → pesan sukses → **otomatis kembali ke input kode (3–5 detik)**
+- [x] Modal "Hak Suara Sudah Digunakan" + audit
+- [x] Sesi pemilih berupa token server singkat (httpOnly), habis otomatis jika idle
+- [x] Rate limit percobaan kode, mode layar penuh, nama bilik
 
 **Selesai bila:** satu kode hanya bisa memilih sekali; layar kembali otomatis; hasil tersimpan tanpa identitas pemilih.
 
@@ -177,11 +177,11 @@ Ikuti design-system (orb samar, kartu mengambang, tombol pil). Tidak ada login p
 
 **Tujuan:** hasil terpantau real-time di proyektor.
 
-- [ ] Halaman Hasil Voting (admin): rekap per jabatan, persentase, partisipasi
-- [ ] `/live`: kartu & grafik (Recharts), filter per jabatan, auto-slide, mode gelap, layar penuh
-- [ ] Penanda *Suara Terbanyak*, footer partisipasi, total suara, **rekonsiliasi** (suara = pemilih yang sudah memilih)
-- [ ] Supabase Realtime, fallback polling ≤ 5 detik
-- [ ] Hasil lewat view/RPC agregat (tabel `votes` tetap tertutup)
+- [x] Halaman Hasil Voting (admin): rekap per jabatan, persentase, partisipasi
+- [x] `/live`: kartu & grafik (Recharts), filter per jabatan, auto-slide, mode gelap, layar penuh
+- [x] Penanda *Suara Terbanyak*, footer partisipasi, total suara, **rekonsiliasi** (suara = pemilih yang sudah memilih)
+- [x] Supabase Realtime, fallback polling ≤ 5 detik
+- [x] Hasil lewat view/RPC agregat (tabel `votes` tetap tertutup)
 
 **Selesai bila:** suara baru muncul di `/live` dalam ≤ 5 detik dan rekonsiliasi menunjukkan 100% cocok.
 
@@ -199,10 +199,10 @@ Update via Supabase Realtime dengan fallback polling 5 detik. Hasil final hanya 
 
 **Tujuan:** lengkapi menu dashboard.
 
-- [ ] Kelola Petugas: CRUD data petugas + penempatan bilik (tanpa akun login)
-- [ ] Status bilik real-time (Kosong/Terpakai) di Dashboard
-- [ ] Audit Log: tabel, filter, ekspor CSV/Excel/PDF; ekspor hasil
-- [ ] Pengaturan Web: nama, logo, tema, format kode unik, tampil/sembunyikan hasil live
+- [x] Kelola Petugas: CRUD data petugas + penempatan bilik (tanpa akun login)
+- [x] Status bilik real-time (Kosong/Terpakai) di Dashboard
+- [x] Audit Log: tabel, filter, ekspor CSV/Excel/PDF; ekspor hasil
+- [x] Pengaturan Web: nama, logo, tema, format kode unik, tampil/sembunyikan hasil live
 
 **Selesai bila:** semua 8 menu dashboard berfungsi dan ekspor terunduh.
 
@@ -221,12 +221,12 @@ Pengaturan Web: nama/logo, tema, format kode unik, toggle tampil hasil live (dip
 
 **Tujuan:** siap dipakai di hari pemilihan.
 
-- [ ] Tes: voting bersamaan, kode ganda, pemilu non-Open, rekonsiliasi
-- [ ] Audit RLS: pastikan `votes`, `voters` tidak bocor ke publik
-- [ ] Uji beban ±1.000 pemilih, beberapa bilik
-- [ ] Cek responsif (tablet bilik, proyektor, desktop admin) dan aksesibilitas dasar
-- [ ] Deploy (Vercel + Supabase), env produksi, backup sebelum Open dan sesudah Closed
-- [ ] Simulasi pemilu penuh (gladi resik)
+- [x] Tes: voting bersamaan, kode ganda, pemilu non-Open, rekonsiliasi
+- [x] Audit RLS: pastikan `votes`, `voters` tidak bocor ke publik
+- [x] Uji beban ±1.000 pemilih, beberapa bilik
+- [x] Cek responsif (tablet bilik, proyektor, desktop admin) dan aksesibilitas dasar
+- [x] Deploy (Vercel + Supabase), env produksi, backup sebelum Open dan sesudah Closed
+- [x] Simulasi pemilu penuh (gladi resik)
 
 **Selesai bila:** semua **Kriteria Sukses** di PRD §7 terpenuhi.
 
