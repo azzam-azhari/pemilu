@@ -6,8 +6,16 @@ import { Download, FileSpreadsheet, FileText, Printer, Search, ShieldAlert } fro
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -26,7 +34,6 @@ interface AuditTableProps {
   elections: { id: string; nama: string; status: string }[];
 }
 
-const selectStyle = "h-9 rounded-md border border-border-soft bg-panel px-3 py-1 text-xs text-foreground outline-none transition focus:border-primary";
 
 export function AuditTable({ rows, count, actionsList, elections }: AuditTableProps) {
   const [isPending, startTransition] = useTransition();
@@ -120,17 +127,18 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
         {/* Export Election Results Section */}
         {elections.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={selectedElection}
-              onChange={(e) => setSelectedElection(e.target.value)}
-              className={selectStyle}
-            >
-              {elections.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.nama} ({e.status})
-                </option>
-              ))}
-            </select>
+            <Select value={selectedElection} onValueChange={setSelectedElection}>
+              <SelectTrigger size="sm" className="w-[220px] text-xs" aria-label="Pilih pemilu">
+                <SelectValue placeholder="Pilih pemilu" />
+              </SelectTrigger>
+              <SelectContent>
+                {elections.map((e) => (
+                  <SelectItem key={e.id} value={e.id}>
+                    {e.nama} ({e.status})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
               size="sm"
               onClick={() => handleExportResults("csv")}
@@ -182,40 +190,40 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
 
           <div className="grid gap-1">
             <Label htmlFor="audit-filter-aksi" className="text-xs">Filter Aksi</Label>
-            <select
-              id="audit-filter-aksi"
-              value={query.aksi}
-              onChange={(e) => void setQuery({ aksi: e.target.value, page: 1 })}
-              className={selectStyle}
-            >
-              <option value="semua">Semua Aksi</option>
-              {actionsList.map((a) => (
-                <option key={a} value={a}>
-                  {a.replaceAll("_", " ")}
-                </option>
-              ))}
-            </select>
+            <Select value={query.aksi} onValueChange={(v) => void setQuery({ aksi: v, page: 1 })}>
+              <SelectTrigger id="audit-filter-aksi" size="sm" className="w-[200px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="semua">Semua Aksi</SelectItem>
+                {actionsList.map((a) => (
+                  <SelectItem key={a} value={a}>
+                    {a.replaceAll("_", " ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-1">
             <Label htmlFor="audit-dari" className="text-xs">Dari Tanggal</Label>
-            <Input
+            <DatePicker
               id="audit-dari"
-              type="date"
+              size="sm"
+              className="w-40"
               value={query.dari}
-              onChange={(e) => void setQuery({ dari: e.target.value, page: 1 })}
-              className="w-40 bg-panel text-xs"
+              onChange={(v) => void setQuery({ dari: v, page: 1 })}
             />
           </div>
 
           <div className="grid gap-1">
             <Label htmlFor="audit-sampai" className="text-xs">Sampai Tanggal</Label>
-            <Input
+            <DatePicker
               id="audit-sampai"
-              type="date"
+              size="sm"
+              className="w-40"
               value={query.sampai}
-              onChange={(e) => void setQuery({ sampai: e.target.value, page: 1 })}
-              className="w-40 bg-panel text-xs"
+              onChange={(v) => void setQuery({ sampai: v, page: 1 })}
             />
           </div>
 
@@ -330,17 +338,18 @@ export function AuditTable({ rows, count, actionsList, elections }: AuditTablePr
             >
               Berikutnya
             </Button>
-            <select
-              value={query.size}
-              onChange={(e) => void setQuery({ size: Number(e.target.value), page: 1 })}
-              className={selectStyle}
-            >
-              {[10, 25, 50, 100].map((n) => (
-                <option key={n} value={n}>
-                  {n} / halaman
-                </option>
-              ))}
-            </select>
+            <Select value={String(query.size)} onValueChange={(v) => void setQuery({ size: Number(v), page: 1 })}>
+              <SelectTrigger size="sm" className="w-[130px] text-xs" aria-label="Jumlah baris">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 25, 50, 100].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n} / halaman
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>

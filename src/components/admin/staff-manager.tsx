@@ -18,6 +18,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Radix Select tidak mengizinkan value "" — pakai sentinel untuk "belum ditempatkan".
+const UNASSIGNED = "__none__";
+import {
   Table,
   TableBody,
   TableCell,
@@ -42,7 +52,6 @@ const statusConfig = {
   nonaktif: { label: "Nonaktif", dot: "bg-outline" },
 };
 
-const selectStyle = "h-11 w-full rounded-md border border-border-soft bg-background px-3 py-2 text-sm outline-none transition focus:border-primary";
 
 export function StaffManager({
   elections,
@@ -372,19 +381,22 @@ export function StaffManager({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="staff-booth">Penempatan Bilik</Label>
-              <select
-                id="staff-booth"
-                value={staffBoothId}
-                onChange={(e) => setStaffBoothId(e.target.value)}
-                className={selectStyle}
+              <Select
+                value={staffBoothId || UNASSIGNED}
+                onValueChange={(v) => setStaffBoothId(v === UNASSIGNED ? "" : v)}
               >
-                <option value="">— Belum Ditempatkan —</option>
-                {booths.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.nama} ({statusConfig[b.status].label})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="staff-booth" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={UNASSIGNED}>— Belum Ditempatkan —</SelectItem>
+                  {booths.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.nama} ({statusConfig[b.status].label})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <DialogFooter className="mt-4 gap-2">
               <Button type="button" variant="outline" onClick={() => setStaffEditing(null)} disabled={isPending}>
@@ -425,16 +437,16 @@ export function StaffManager({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="booth-status">Status Bilik</Label>
-              <select
-                id="booth-status"
-                value={boothStatus}
-                onChange={(e) => setBoothStatus(e.target.value as typeof boothStatus)}
-                className={selectStyle}
-              >
-                <option value="kosong">Kosong / Siap</option>
-                <option value="terpakai">Sedang Digunakan</option>
-                <option value="nonaktif">Nonaktif</option>
-              </select>
+              <Select value={boothStatus} onValueChange={(v) => setBoothStatus(v as typeof boothStatus)}>
+                <SelectTrigger id="booth-status" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kosong">Kosong / Siap</SelectItem>
+                  <SelectItem value="terpakai">Sedang Digunakan</SelectItem>
+                  <SelectItem value="nonaktif">Nonaktif</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <DialogFooter className="mt-4 gap-2">
               <Button type="button" variant="outline" onClick={() => setBoothEditing(null)} disabled={isPending}>

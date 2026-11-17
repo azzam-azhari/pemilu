@@ -3,12 +3,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { castBooth, leaveBooth, readBooth, startBooth, touchBooth } from "@/actions/booth";
 import { reasons, type Position, type SessionResult } from "@/lib/validations/booth";
 import Image from "next/image";
+import { Check, ChevronLeft, ChevronRight, LogOut, Maximize, Minimize } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Booth({
@@ -27,6 +29,7 @@ export function Booth({
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [choices, setChoices] = useState<Record<string, string>>({});
+  const [step, setStep] = useState(0);
   const [message, setMessage] = useState("");
   const [used, setUsed] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -46,6 +49,7 @@ export function Booth({
   const clear = useCallback(() => {
     setCode("");
     setChoices({});
+    setStep(0);
     setPositions([]);
     setTitle("");
     setConfirm(false);
@@ -221,15 +225,20 @@ export function Booth({
   }, [stage, clear]);
 
   const complete = positions.length > 0 && positions.every((p) => p.candidates.some((c) => c.id === choices[p.id]));
+  const current = positions[Math.min(step, Math.max(positions.length - 1, 0))];
+  const isLast = step >= positions.length - 1;
+  const cols = current ? Math.min(current.candidates.length, 4) : 1;
+  const gridCols =
+    cols >= 4 ? "sm:grid-cols-2 lg:grid-cols-4" : cols === 3 ? "sm:grid-cols-3" : cols === 2 ? "sm:grid-cols-2" : "";
 
   return (
-    <div className="relative mx-auto max-w-[1440px] px-6 pb-40 sm:px-10">
-      <header className="flex min-h-header flex-wrap items-center justify-between gap-4 border-b border-border-soft py-4">
+    <div className="relative mx-auto flex h-full w-full max-w-[1440px] flex-col px-4 sm:px-8">
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b py-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest">{name}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{clock} WIB</p>
+          <p className="text-xs font-semibold uppercase tracking-widest">{name}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{clock} WIB</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <ThemeToggle />
           <Button
             variant="outline"
@@ -242,7 +251,8 @@ export function Booth({
               }
             }}
           >
-            {fullscreen ? "Keluar layar penuh" : "Layar penuh"}
+            {fullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+            <span className="hidden sm:inline">{fullscreen ? "Keluar layar penuh" : "Layar penuh"}</span>
           </Button>
           {stage === "voting" && (
             <Button
@@ -261,113 +271,130 @@ export function Booth({
                 })
               }
             >
-              Keluar Sesi
+              <LogOut className="size-4" />
+              <span className="hidden sm:inline">Keluar Sesi</span>
             </Button>
           )}
         </div>
       </header>
 
       {message && (
-        <Alert variant="destructive" className="my-6">
+        <Alert variant="destructive" className="mt-3 shrink-0">
           <AlertDescription>{message}</AlertDescription>
         </Alert>
       )}
 
       {stage === "checking" && (
-        <p className="py-24 text-center text-muted-foreground" role="status">
-          Memeriksa sesi…
-        </p>
+        <div className="grid flex-1 place-items-center">
+          <p className="text-muted-foreground" role="status">
+            Memeriksa sesi…
+          </p>
+        </div>
       )}
 
       {stage === "input" && (
-        <Card className="mx-auto mt-16 max-w-lg p-8 sm:mt-24">
-          <p className="mb-4 text-xs uppercase tracking-widest text-muted-foreground">Selamat datang</p>
-          <h1 className="text-3xl font-semibold">Suara Anda berarti.</h1>
-          <p className="my-6 text-muted-foreground">Masukkan kode unik dari petugas untuk membuka surat suara.</p>
-          <form
-            className="space-y-6"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (busy || retry) return;
-              setUsed(false);
-              await request(async () => {
-                const r = await startBooth({ code, booth });
-                if (r.retryAfter) {
-                  retryDeadline.current = Date.now() + r.retryAfter * 1000;
-                  setRetry(r.retryAfter);
-                  setMessage("Terlalu banyak percobaan. Tunggu sebelum mencoba kembali.");
-                  return { ok: false, reason: "terlalu_banyak_percobaan" };
-                }
-                return r;
-              });
-            }}
-          >
-            <div className="grid gap-3">
-              <Label htmlFor="booth-code" className="text-sm font-medium">
-                Kode unik
-              </Label>
-              <Input
-                id="booth-code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                name="code"
-                required
-                maxLength={64}
-                autoComplete="off"
-                autoCapitalize="characters"
-                spellCheck={false}
-                className="h-14 w-full bg-panel text-center text-xl uppercase tracking-widest"
-              />
-            </div>
-            <Button className="w-full" size="lg" disabled={busy || retry > 0}>
-              {retry > 0 ? "Coba lagi dalam " + retry + " detik" : busy ? "Memeriksa…" : "Buka Surat Suara"}
-            </Button>
-          </form>
-        </Card>
+        <div className="grid min-h-0 flex-1 place-items-center py-4">
+          <Card className="w-full max-w-lg gap-0 p-6 sm:p-8">
+            <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">Selamat datang</p>
+            <h1 className="text-3xl font-semibold">Suara Anda berarti.</h1>
+            <p className="my-5 text-muted-foreground">Masukkan kode unik dari petugas untuk membuka surat suara.</p>
+            <form
+              className="space-y-5"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (busy || retry) return;
+                setUsed(false);
+                await request(async () => {
+                  const r = await startBooth({ code, booth });
+                  if (r.retryAfter) {
+                    retryDeadline.current = Date.now() + r.retryAfter * 1000;
+                    setRetry(r.retryAfter);
+                    setMessage("Terlalu banyak percobaan. Tunggu sebelum mencoba kembali.");
+                    return { ok: false, reason: "terlalu_banyak_percobaan" };
+                  }
+                  return r;
+                });
+              }}
+            >
+              <div className="grid gap-2">
+                <Label htmlFor="booth-code" className="text-sm font-medium">
+                  Kode unik
+                </Label>
+                <Input
+                  id="booth-code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  name="code"
+                  required
+                  maxLength={64}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  className="h-14 w-full text-center text-xl uppercase tracking-widest md:text-xl"
+                />
+              </div>
+              <Button className="w-full" size="lg" disabled={busy || retry > 0}>
+                {retry > 0 ? "Coba lagi dalam " + retry + " detik" : busy ? "Memeriksa…" : "Buka Surat Suara"}
+              </Button>
+            </form>
+          </Card>
+        </div>
       )}
 
-      {stage === "voting" && (
-        <div className="space-y-12 py-12">
-          <div>
-            <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">Surat suara</p>
-            <h1 className="text-3xl font-semibold">{title}</h1>
-            <p className="mt-4 text-muted-foreground">Pilih satu kandidat pada setiap jabatan.</p>
+      {stage === "voting" && current && (
+        <>
+          <div className="flex shrink-0 flex-wrap items-end justify-between gap-2 pt-4 pb-3">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {title} · Jabatan {step + 1} dari {positions.length}
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">{current.nama}</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">Pilih satu kandidat.</p>
           </div>
-          {positions.map((p) => (
-            <fieldset key={p.id} className="space-y-6">
-              <legend className="mb-6 text-2xl font-medium">{p.nama}</legend>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {p.candidates.map((c) => (
-                  <Card
-                    key={c.id}
-                    className={`p-6 transition-all ${
-                      choices[p.id] === c.id ? "border-2 border-primary shadow-md" : ""
-                    }`}
-                  >
-                    <label className="block cursor-pointer">
-                      <input
-                        type="radio"
-                        name={p.id}
-                        value={c.id}
-                        checked={choices[p.id] === c.id}
-                        disabled={busy}
-                        onChange={() => setChoices((old) => ({ ...old, [p.id]: c.id }))}
-                        className="mb-4 size-5 accent-foreground"
-                      />
-                      {c.foto && <CandidatePhoto url={c.foto} name={c.nama} />}
-                      <span className="block text-xs uppercase tracking-widest text-muted-foreground">
-                        Nomor {c.nomor}
-                      </span>
-                      <span className="mt-3 block text-2xl font-medium">{c.nama}</span>
-                      <span className="mt-3 block text-sm text-muted-foreground">{c.info}</span>
-                      <span className="mt-4 block text-sm font-medium">
-                        {choices[p.id] === c.id ? "✓ Pilihan Anda" : "Pilih kandidat"}
-                      </span>
-                    </label>
+
+          <RadioGroup
+            key={current.id}
+            value={choices[current.id] ?? ""}
+            onValueChange={(v) => setChoices((old) => ({ ...old, [current.id]: v }))}
+            disabled={busy}
+            aria-label={current.nama}
+            className={`grid min-h-0 flex-1 auto-rows-fr grid-cols-1 gap-3 overflow-y-auto pb-3 sm:gap-4 ${gridCols}`}
+          >
+            {current.candidates.map((c) => {
+              const selected = choices[current.id] === c.id;
+              const id = `cand-${current.id}-${c.id}`;
+              return (
+                <Card
+                  key={c.id}
+                  className={`min-h-0 gap-0 overflow-hidden p-0 transition-all ${
+                    selected ? "border-primary ring-2 ring-primary" : "hover:border-foreground/40"
+                  }`}
+                >
+                  <Label htmlFor={id} className="flex min-h-0 flex-1 cursor-pointer flex-col items-stretch gap-0 font-normal">
+                    {c.foto ? (
+                      <CandidatePhoto url={c.foto} name={c.nama} />
+                    ) : (
+                      <div className="grid min-h-0 flex-1 place-items-center bg-muted text-5xl font-semibold text-muted-foreground">
+                        {c.nomor}
+                      </div>
+                    )}
+                    <div className="flex shrink-0 items-start gap-3 p-4">
+                      <RadioGroupItem id={id} value={c.id} className="mt-1 size-5" />
+                      <div className="min-w-0">
+                        <span className="block text-xs uppercase tracking-widest text-muted-foreground">
+                          Nomor {c.nomor}
+                        </span>
+                        <span className="mt-1 block truncate text-lg font-semibold">{c.nama}</span>
+                        {c.info && <span className="mt-1 line-clamp-1 text-sm text-muted-foreground">{c.info}</span>}
+                      </div>
+                    </div>
+                  </Label>
+                  <div className="shrink-0 px-4 pb-4">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="mt-6 w-full"
+                      className="w-full"
                       onClick={() =>
                         setVision({
                           nama: c.nama,
@@ -377,38 +404,58 @@ export function Booth({
                     >
                       Lihat Visi & Misi
                     </Button>
-                  </Card>
-                ))}
-              </div>
-            </fieldset>
-          ))}
-          <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border-soft bg-background/90 p-6 backdrop-blur-[20px]">
-            <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="font-medium">
-                  {positions.filter((p) => choices[p.id]).length} dari {positions.length} jabatan dipilih
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {remaining <= 30
-                    ? "Sesi akan berakhir. Berinteraksilah untuk melanjutkan."
-                    : "Pilihan Anda bersifat rahasia."}
-                </p>
-              </div>
-              <Button disabled={!complete || busy} onClick={() => setConfirm(true)}>
-                Konfirmasi & Simpan
-              </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </RadioGroup>
+
+          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t py-3">
+            <div>
+              <p className="font-medium">
+                {positions.filter((p) => choices[p.id]).length} dari {positions.length} jabatan dipilih
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {remaining <= 30
+                  ? "Sesi akan berakhir. Berinteraksilah untuk melanjutkan."
+                  : "Pilihan Anda bersifat rahasia."}
+              </p>
             </div>
-          </div>
-        </div>
+            <div className="flex gap-2">
+              {positions.length > 1 && (
+                <Button variant="outline" disabled={step === 0 || busy} onClick={() => setStep((s) => Math.max(0, s - 1))}>
+                  <ChevronLeft className="size-4" /> Sebelumnya
+                </Button>
+              )}
+              {isLast ? (
+                <Button disabled={!complete || busy} onClick={() => setConfirm(true)}>
+                  Konfirmasi & Simpan
+                </Button>
+              ) : (
+                <Button
+                  disabled={!choices[current.id] || busy}
+                  onClick={() => setStep((s) => Math.min(positions.length - 1, s + 1))}
+                >
+                  Berikutnya <ChevronRight className="size-4" />
+                </Button>
+              )}
+            </div>
+          </footer>
+        </>
       )}
 
       {stage === "success" && (
-        <Card className="mx-auto mt-24 max-w-lg p-8 text-center">
-          <h1 className="text-3xl font-semibold">Terima kasih!</h1>
-          <p role="status" className="mt-6 text-muted-foreground">
-            Suara Anda berhasil disimpan. Bilik kembali siap dalam 4 detik.
-          </p>
-        </Card>
+        <div className="grid flex-1 place-items-center">
+          <Card className="w-full max-w-lg items-center p-8 text-center">
+            <span className="grid size-12 place-items-center rounded-full bg-primary text-primary-foreground">
+              <Check className="size-6" />
+            </span>
+            <h1 className="text-3xl font-semibold">Terima kasih!</h1>
+            <p role="status" className="text-muted-foreground">
+              Suara Anda berhasil disimpan. Bilik kembali siap dalam 4 detik.
+            </p>
+          </Card>
+        </div>
       )}
 
       <Modal open={used} onOpenChange={setUsed} title="Hak Suara Sudah Digunakan">
@@ -465,20 +512,13 @@ function CandidatePhoto({ url, name }: { url: string; name: string }) {
   const [failed, setFailed] = useState(false);
   if (failed)
     return (
-      <div className="mb-6 grid aspect-square place-items-center rounded-md bg-panel text-muted-foreground">
+      <div className="grid min-h-0 flex-1 place-items-center bg-muted text-sm text-muted-foreground">
         Foto tidak tersedia
       </div>
     );
   return (
-    <div className="relative mb-6 aspect-square w-full overflow-hidden rounded-md">
-      <Image
-        src={url}
-        alt={"Foto " + name}
-        fill
-        className="object-cover"
-        onError={() => setFailed(true)}
-        unoptimized
-      />
+    <div className="relative min-h-24 flex-1 overflow-hidden bg-muted">
+      <Image src={url} alt={"Foto " + name} fill className="object-cover object-top" onError={() => setFailed(true)} unoptimized />
     </div>
   );
 }

@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { saveWebSettings } from "@/actions/settings";
 import type { WebSettings } from "@/lib/validations/settings";
@@ -17,8 +24,6 @@ interface SettingsFormProps {
   initialSettings: WebSettings;
 }
 
-const selectStyle =
-  "h-9 rounded-md border border-border-soft bg-background px-3 py-1 text-xs text-foreground outline-none transition focus:border-primary";
 
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const router = useRouter();
@@ -196,18 +201,19 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                 <Label htmlFor="theme-select" className="text-xs font-medium">
                   Tema Antarmuka Bawaan
                 </Label>
-                <select
-                  id="theme-select"
+                <Select
                   value={settings.tema}
-                  onChange={(e) =>
-                    setSettings({ ...settings, tema: e.target.value as typeof settings.tema })
-                  }
-                  className={selectStyle}
+                  onValueChange={(v) => setSettings({ ...settings, tema: v as typeof settings.tema })}
                 >
-                  <option value="system">Mengikuti Sistem Pengguna</option>
-                  <option value="light">Terang (Light Mode)</option>
-                  <option value="dark">Gelap (Dark Mode)</option>
-                </select>
+                  <SelectTrigger id="theme-select" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="system">Mengikuti Sistem Pengguna</SelectItem>
+                    <SelectItem value="light">Terang (Light Mode)</SelectItem>
+                    <SelectItem value="dark">Gelap (Dark Mode)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </div>

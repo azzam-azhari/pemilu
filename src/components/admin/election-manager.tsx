@@ -2,7 +2,7 @@
 
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DndContext,
@@ -39,6 +39,7 @@ import { managementSchema, type ManagementInput } from "@/lib/validations/manage
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Card,
   CardTitle,
@@ -754,11 +755,18 @@ export function ElectionManager({
                 <Label htmlFor="mulai-pemilu" className="text-xs">
                   Mulai (WIB)
                 </Label>
-                <Input
-                  id="mulai-pemilu"
-                  type="date"
-                  className="h-9 text-xs"
-                  {...electionForm.register("mulai")}
+                <Controller
+                  control={electionForm.control}
+                  name="mulai"
+                  render={({ field, fieldState }) => (
+                    <DatePicker
+                      id="mulai-pemilu"
+                      className="text-xs"
+                      value={field.value}
+                      onChange={field.onChange}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  )}
                 />
                 {electionForm.formState.errors.mulai && (
                   <p className="text-[11px] text-destructive">
@@ -771,11 +779,18 @@ export function ElectionManager({
                 <Label htmlFor="selesai-pemilu" className="text-xs">
                   Selesai (WIB)
                 </Label>
-                <Input
-                  id="selesai-pemilu"
-                  type="date"
-                  className="h-9 text-xs"
-                  {...electionForm.register("selesai")}
+                <Controller
+                  control={electionForm.control}
+                  name="selesai"
+                  render={({ field, fieldState }) => (
+                    <DatePicker
+                      id="selesai-pemilu"
+                      className="text-xs"
+                      value={field.value}
+                      onChange={field.onChange}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  )}
                 />
                 {electionForm.formState.errors.selesai && (
                   <p className="text-[11px] text-destructive">

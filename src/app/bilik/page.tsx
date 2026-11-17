@@ -18,5 +18,18 @@ export default async function Page({searchParams}:{searchParams:Promise<{bilik?:
     }
   }
   const hasSession=Boolean((await cookies()).get("pemilu-voter")?.value);
-  return <main className="relative min-h-screen overflow-x-hidden bg-background"><div aria-hidden className="pointer-events-none absolute -left-24 top-32 size-80 rounded-full bg-secondary-container/50 blur-3xl"/>{error?<div className="mx-auto max-w-xl px-6 py-24"><Card><h1 className="text-2xl">Konfigurasi bilik</h1><p role="alert" className="mt-4">{error}</p></Card></div>:<Booth booth={booth} name={name} hasSession={hasSession}/>}</main>;
+  return (
+    <main className="relative h-dvh overflow-hidden bg-background">
+      {error ? (
+        <div className="grid h-full place-items-center px-4">
+          <Card className="w-full max-w-xl p-8">
+            <h1 className="text-2xl">Konfigurasi bilik</h1>
+            <p role="alert" className="text-muted-foreground">{error}</p>
+          </Card>
+        </div>
+      ) : (
+        <Booth booth={booth} name={name} hasSession={hasSession} />
+      )}
+    </main>
+  );
 }

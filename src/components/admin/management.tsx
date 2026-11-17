@@ -1,7 +1,7 @@
 "use client";
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +46,7 @@ function Editor({
   const [message, setMessage] = useState("");
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ManagementInput>({
@@ -88,11 +90,23 @@ function Editor({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="mulai">Mulai (WIB)</Label>
-              <Input id="mulai" type="date" className="rounded-input bg-panel" {...register("mulai")} />
+              <Controller
+                control={control}
+                name="mulai"
+                render={({ field, fieldState }) => (
+                  <DatePicker id="mulai" value={field.value} onChange={field.onChange} aria-invalid={fieldState.invalid} />
+                )}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="selesai">Selesai (WIB)</Label>
-              <Input id="selesai" type="date" className="rounded-input bg-panel" {...register("selesai")} />
+              <Controller
+                control={control}
+                name="selesai"
+                render={({ field, fieldState }) => (
+                  <DatePicker id="selesai" value={field.value} onChange={field.onChange} aria-invalid={fieldState.invalid} />
+                )}
+              />
             </div>
           </div>
         ) : (

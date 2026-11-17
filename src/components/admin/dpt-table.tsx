@@ -21,6 +21,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -29,8 +36,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const selectField =
-  "h-8 rounded-md border border-border-soft bg-panel px-2.5 text-xs text-foreground outline-none transition focus:border-primary";
 
 export function DptTable({
   rows,
@@ -202,18 +207,18 @@ export function DptTable({
           <label htmlFor="election-select" className="text-xs font-medium text-muted-foreground shrink-0">
             Pilih Pemilu:
           </label>
-          <select
-            id="election-select"
-            className={selectField}
-            value={query.pemilu}
-            onChange={(e) => void setQuery({ pemilu: e.target.value, page: 1 })}
-          >
-            {elections.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.nama}
-              </option>
-            ))}
-          </select>
+          <Select value={query.pemilu} onValueChange={(v) => void setQuery({ pemilu: v, page: 1 })}>
+            <SelectTrigger id="election-select" size="sm" className="w-[220px] text-xs">
+              <SelectValue placeholder="Pilih pemilu" />
+            </SelectTrigger>
+            <SelectContent>
+              {elections.map((e) => (
+                <SelectItem key={e.id} value={e.id}>
+                  {e.nama}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Badge variant="outline" className="text-xs font-normal shrink-0">
             {count.toLocaleString("id-ID")} Pemilih
           </Badge>
@@ -299,16 +304,19 @@ export function DptTable({
             </Button>
           </form>
 
-          <select
-            aria-label="Status memilih"
-            className={selectField}
+          <Select
             value={query.status}
-            onChange={(e) => void setQuery({ status: e.target.value as typeof query.status, page: 1 })}
+            onValueChange={(v) => void setQuery({ status: v as typeof query.status, page: 1 })}
           >
-            <option value="semua">Semua Status</option>
-            <option value="sudah">Sudah Memilih</option>
-            <option value="belum">Belum Memilih</option>
-          </select>
+            <SelectTrigger size="sm" className="w-[170px] text-xs" aria-label="Status memilih">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="semua">Semua Status</SelectItem>
+              <SelectItem value="sudah">Sudah Memilih</SelectItem>
+              <SelectItem value="belum">Belum Memilih</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Dense Table */}
@@ -388,18 +396,18 @@ export function DptTable({
             >
               Berikutnya
             </Button>
-            <select
-              aria-label="Jumlah baris"
-              className={selectField}
-              value={query.size}
-              onChange={(e) => void setQuery({ size: Number(e.target.value), page: 1 })}
-            >
-              {[10, 25, 50, 100].map((n) => (
-                <option key={n} value={n}>
-                  {n} / halaman
-                </option>
-              ))}
-            </select>
+            <Select value={String(query.size)} onValueChange={(v) => void setQuery({ size: Number(v), page: 1 })}>
+              <SelectTrigger size="sm" className="w-[130px] text-xs" aria-label="Jumlah baris">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 25, 50, 100].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n} / halaman
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>
